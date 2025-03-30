@@ -1,16 +1,21 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AnimatedSection from '../components/AnimatedSection';
 import CategoryFilter from '../components/CategoryFilter';
-import ParallaxImage from '../components/ParallaxImage';
+import ImageViewer from '../components/ImageViewer';
+
+// Register ScrollTrigger
+gsap.registerPlugin(ScrollTrigger);
 
 interface PortfolioItem {
   id: number;
   title: string;
   category: string;
   image: string;
-  description: string;
+  aspectRatio: 'portrait' | 'landscape' | 'square';
 }
 
 const portfolioData: PortfolioItem[] = [
@@ -20,14 +25,14 @@ const portfolioData: PortfolioItem[] = [
     title: "Mountain Portrait",
     category: "Portrait",
     image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9",
-    description: "Portrait in nature"
+    aspectRatio: "portrait"
   },
   {
     id: 2,
     title: "Urban Portrait",
     category: "Portrait",
     image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb",
-    description: "City portrait session"
+    aspectRatio: "landscape"
   },
   
   // Restaurant
@@ -36,14 +41,14 @@ const portfolioData: PortfolioItem[] = [
     title: "Fine Dining",
     category: "Restaurant",
     image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
-    description: "Luxury restaurant setup"
+    aspectRatio: "landscape"
   },
   {
     id: 4,
     title: "Culinary Art",
     category: "Restaurant",
     image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-    description: "Food presentation"
+    aspectRatio: "portrait"
   },
   
   // Café
@@ -52,14 +57,14 @@ const portfolioData: PortfolioItem[] = [
     title: "Morning Coffee",
     category: "Café",
     image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716",
-    description: "Café ambiance"
+    aspectRatio: "landscape"
   },
   {
     id: 6,
     title: "Café Culture",
     category: "Café",
     image: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21",
-    description: "Social café environment"
+    aspectRatio: "portrait"
   },
   
   // Landscape
@@ -68,14 +73,14 @@ const portfolioData: PortfolioItem[] = [
     title: "Mountain Range",
     category: "Landscape",
     image: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-    description: "Majestic mountain view"
+    aspectRatio: "landscape"
   },
   {
     id: 8,
     title: "Coastal Sunset",
     category: "Landscape",
     image: "https://images.unsplash.com/photo-1458668383970-8ddd3927deed",
-    description: "Sunset by the ocean"
+    aspectRatio: "landscape"
   }
 ];
 
@@ -86,6 +91,10 @@ const Portfolio = () => {
   const categories = ["All", "Portrait", "Restaurant", "Café", "Landscape"];
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>(portfolioData);
+  
+  // Image viewer state
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -99,6 +108,18 @@ const Portfolio = () => {
         setActiveCategory(matchedCategory);
       }
     }
+    
+    // Initialize scroll animations
+    const scrollTrigger = ScrollTrigger.create({
+      trigger: document.body,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1,
+    });
+    
+    return () => {
+      scrollTrigger.kill();
+    };
   }, [categoryParam]);
 
   useEffect(() => {
@@ -121,6 +142,22 @@ const Portfolio = () => {
   const handleCategorySelect = (category: string) => {
     setActiveCategory(category);
   };
+  
+  const openImageViewer = (index: number) => {
+    setSelectedImageIndex(index);
+    setViewerOpen(true);
+  };
+  
+  const closeImageViewer = () => {
+    setViewerOpen(false);
+  };
+  
+  // Prepare images for the viewer
+  const viewerImages = filteredItems.map(item => ({
+    id: item.id,
+    src: item.image,
+    alt: item.title
+  }));
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4 md:px-6">
@@ -128,7 +165,7 @@ const Portfolio = () => {
         <AnimatedSection className="text-center mb-12">
           <h1 className="text-3xl md:text-5xl uppercase tracking-wider mb-4">Portfolio</h1>
           <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-            A selection of my professional photography work across various categories
+            A selection of my professional photography work
           </p>
           <div className="w-16 h-px bg-white/40 mx-auto"></div>
         </AnimatedSection>
@@ -139,32 +176,46 @@ const Portfolio = () => {
           onSelectCategory={handleCategorySelect} 
         />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        {/* Dynamic Masonry Layout */}
+        <div className="masonry-grid">
           {filteredItems.map((item, index) => (
             <AnimatedSection 
               key={item.id} 
-              className="card-shine overflow-hidden"
+              className={`masonry-item ${item.aspectRatio === 'portrait' ? 'row-span-2' : ''} 
+                          overflow-hidden cursor-pointer hover:z-10 transition-all duration-300`}
               delay={index * 100}
             >
-              <div className="group cursor-pointer">
-                <div className="overflow-hidden">
-                  <ParallaxImage 
+              <div 
+                className="group transform transition-all duration-500 hover:scale-[1.02]"
+                onClick={() => openImageViewer(index)}
+              >
+                <div className="relative overflow-hidden">
+                  <img 
                     src={item.image} 
                     alt={item.title}
-                    className="w-full h-[400px]"
+                    className={`w-full transition-all duration-700 ease-out 
+                               group-hover:scale-105 ${item.aspectRatio === 'portrait' ? 'h-[500px]' : 'h-[300px]'} 
+                               object-cover`}
                   />
-                </div>
-                <div className="pt-4 pb-6">
-                  <h3 className="text-xl uppercase tracking-wider mb-1 group-hover:text-white transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm">{item.description}</p>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="text-white text-lg uppercase tracking-wider font-light">
+                      {item.title}
+                    </span>
+                  </div>
                 </div>
               </div>
             </AnimatedSection>
           ))}
         </div>
       </div>
+      
+      {/* Full-screen Image Viewer */}
+      <ImageViewer 
+        images={viewerImages}
+        initialIndex={selectedImageIndex}
+        isOpen={viewerOpen}
+        onClose={closeImageViewer}
+      />
     </main>
   );
 };

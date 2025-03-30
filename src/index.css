@@ -46,6 +46,10 @@
     @apply bg-dark text-dark-foreground font-oswald m-0 p-0 min-h-screen;
     scroll-behavior: smooth;
   }
+  
+  html {
+    overflow-x: hidden;
+  }
 }
 
 @layer components {
@@ -104,6 +108,42 @@
   .image-grid {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
   }
+  
+  /* Masonry grid layout */
+  .masonry-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-[200px];
+  }
+  
+  .masonry-item {
+    @apply overflow-hidden;
+  }
+  
+  .masonry-item.row-span-2 {
+    @apply row-span-2;
+  }
+  
+  /* Hero section animations */
+  .hero-text-animation {
+    @apply opacity-0 transform translate-y-10;
+    animation: fadeUpIn 0.8s ease forwards;
+  }
+  
+  .hero-text-animation:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  .hero-text-animation:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  
+  /* Snap Scrolling */
+  .snap-mandatory {
+    scroll-snap-type: y mandatory;
+  }
+  
+  .snap-start {
+    scroll-snap-align: start;
+  }
 }
 
 @layer utilities {
@@ -112,5 +152,25 @@
   }
   .-skew-x-15 {
     transform: skewX(-15deg);
+  }
+  
+  @keyframes fadeUpIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes textReveal {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
   }
 }
