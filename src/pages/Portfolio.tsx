@@ -196,10 +196,10 @@ const Portfolio = () => {
             <div 
               key={item.id} 
               className={`masonry-item 
-                ${item.aspectRatio === 'portrait' ? 'row-span-2' : ''} 
+                ${item.aspectRatio === 'portrait' ? 'masonry-item-tall' : ''} 
                 ${item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''}
                 relative group overflow-hidden cursor-pointer transform transition-all duration-500 hover:z-10 ${
-                  index % 3 === 0 ? 'sm:col-span-2' : index % 5 === 0 ? 'row-span-2' : ''
+                  index % 3 === 0 ? 'sm:col-span-2' : index % 5 === 0 ? 'masonry-item-tall' : ''
                 }`}
               onClick={() => openImageViewer(index)}
             >

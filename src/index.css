@@ -118,8 +118,9 @@
     @apply overflow-hidden;
   }
   
-  .masonry-item.row-span-2 {
-    @apply row-span-2;
+  /* Fix for circular dependency - removed @apply */
+  .masonry-item-tall {
+    grid-row: span 2 / span 2;
   }
   
   /* Hero section animations */
