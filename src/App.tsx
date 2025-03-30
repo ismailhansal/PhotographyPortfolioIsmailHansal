@@ -13,33 +13,18 @@ import Portfolio from "./pages/Portfolio";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-
-// Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const queryClient = new QueryClient();
 
 const App = () => {
   useEffect(() => {
-    // Initialize smooth scrolling
+    // Basic gsap setup without ScrollTrigger or scroll manipulation
     gsap.config({
       nullTargetWarn: false
     });
     
-    // Set up global scroll smoothness
-    const setupSmoothScroll = () => {
-      const container = document.documentElement;
-      
-      gsap.set(container, { scrollBehavior: "smooth" });
-    };
-    
-    setupSmoothScroll();
-    
     return () => {
       // Clean up GSAP animations
-      ScrollTrigger.getAll().forEach(t => t.kill());
       gsap.killTweensOf(window);
     };
   }, []);

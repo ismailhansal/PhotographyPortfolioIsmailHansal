@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -44,7 +43,6 @@
 
   html, body {
     @apply bg-dark text-dark-foreground font-oswald m-0 p-0 min-h-screen;
-    scroll-behavior: smooth;
   }
   
   html {
@@ -135,15 +133,6 @@
   
   .hero-text-animation:nth-child(3) {
     animation-delay: 0.4s;
-  }
-  
-  /* Snap Scrolling */
-  .snap-mandatory {
-    scroll-snap-type: y mandatory;
-  }
-  
-  .snap-start {
-    scroll-snap-align: start;
   }
   
   /* Letter animation */

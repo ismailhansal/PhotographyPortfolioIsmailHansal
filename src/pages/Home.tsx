@@ -4,11 +4,6 @@ import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-
-// Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const heroImages = [
   "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
@@ -22,7 +17,6 @@ const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   
   // Set up faster image cycle
   useEffect(() => {
@@ -66,68 +60,6 @@ const Home = () => {
     }
   }, []);
   
-  // Initialize ScrollTrigger for smooth scrolling
-  useEffect(() => {
-    // Set up smooth scrolling
-    gsap.config({
-      nullTargetWarn: false
-    });
-    
-    // Select all sections for snap scrolling
-    const sections = document.querySelectorAll('section');
-    sectionRefs.current = Array.from(sections);
-    
-    // Create scroll triggers for each section
-    sectionRefs.current.forEach((section, i) => {
-      if (!section) return;
-      
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top center',
-        end: 'bottom center',
-        markers: false,
-        onEnter: () => {
-          gsap.to(window, {
-            duration: 0.8,
-            scrollTo: { y: section, offsetY: 0 },
-            ease: "power3.inOut"
-          });
-        },
-        onEnterBack: () => {
-          gsap.to(window, {
-            duration: 0.8,
-            scrollTo: { y: section, offsetY: 0 },
-            ease: "power3.inOut"
-          });
-        }
-      });
-    });
-    
-    // Advanced parallax effect for background images
-    if (heroRef.current) {
-      gsap.to(".hero-image.active", {
-        y: "10%",
-        scale: 1.1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
-      });
-    }
-    
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
-  
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   // Enhanced hero image parallax effect
   useEffect(() => {
     if (heroRef.current) {
@@ -148,6 +80,11 @@ const Home = () => {
       return () => window.removeEventListener('mousemove', handleMouseMove);
     }
   }, [currentImageIndex]);
+  
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Split text into individual letters for animation
   const splitTextIntoLetters = (text: string) => {
@@ -157,9 +94,9 @@ const Home = () => {
   };
 
   return (
-    <main className="min-h-screen flex flex-col snap-y snap-mandatory">
+    <main className="min-h-screen flex flex-col">
       {/* Hero Section with Dynamic Images */}
-      <section ref={heroRef} className="relative h-screen flex items-center justify-center snap-start">
+      <section ref={heroRef} className="relative h-screen flex items-center justify-center">
         <div className="absolute inset-0 bg-black/70 z-0 overflow-hidden">
           {heroImages.map((img, index) => (
             <img
@@ -197,82 +134,107 @@ const Home = () => {
           </div>
         </div>
         
-        <div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer"
-          onClick={() => {
-            const nextSection = document.querySelector('section:nth-child(2)');
-            if (nextSection) {
-              gsap.to(window, {
-                duration: 1,
-                scrollTo: { y: nextSection, offsetY: 0 },
-                ease: "power3.inOut"
-              });
-            }
-          }}
-        >
-          <ArrowDown className="text-white/70 hover:text-white transition-colors" size={32} />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer">
+          <ArrowDown 
+            className="text-white/70 hover:text-white transition-colors" 
+            size={32} 
+            onClick={() => {
+              const featuredSection = document.querySelector('#featured-work');
+              if (featuredSection) {
+                featuredSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          />
         </div>
       </section>
 
-      {/* Featured Work */}
-      <section className="py-20 px-4 md:px-6 snap-start">
+      {/* Redesigned Featured Work Section */}
+      <section id="featured-work" className="py-20 px-4 md:px-6 bg-dark-accent">
         <div className="container mx-auto">
           <AnimatedSection className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl uppercase tracking-wider mb-4">Featured Work</h2>
-            <div className="w-16 h-px bg-white/40 mx-auto"></div>
+            <div className="w-16 h-px bg-white/40 mx-auto mb-6"></div>
+            <p className="text-gray-300 max-w-2xl mx-auto">Explore a selection of my most impactful photography projects across different genres</p>
           </AnimatedSection>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <AnimatedSection className="card-shine" delay={100}>
-              <Link to="/portfolio?category=portrait" className="block overflow-hidden group">
-                <div className="overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9" 
-                    alt="Portrait photography" 
-                    className="w-full h-[400px] object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-                <div className="pt-4 pb-6">
-                  <h3 className="text-xl uppercase tracking-wider mb-1">Portrait</h3>
-                  <p className="text-gray-400 text-sm">Capturing human essence</p>
-                </div>
-              </Link>
-            </AnimatedSection>
-            
-            <AnimatedSection className="card-shine" delay={200}>
-              <Link to="/portfolio?category=restaurant" className="block overflow-hidden group">
-                <div className="overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07" 
-                    alt="Restaurant photography" 
-                    className="w-full h-[400px] object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-                <div className="pt-4 pb-6">
-                  <h3 className="text-xl uppercase tracking-wider mb-1">Restaurant</h3>
-                  <p className="text-gray-400 text-sm">Culinary visual stories</p>
-                </div>
-              </Link>
-            </AnimatedSection>
-            
-            <AnimatedSection className="card-shine" delay={300}>
-              <Link to="/portfolio?category=landscape" className="block overflow-hidden group">
-                <div className="overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1472396961693-142e6e269027" 
-                    alt="Landscape photography" 
-                    className="w-full h-[400px] object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-                <div className="pt-4 pb-6">
-                  <h3 className="text-xl uppercase tracking-wider mb-1">Landscape</h3>
-                  <p className="text-gray-400 text-sm">Nature's magnificent canvas</p>
-                </div>
-              </Link>
-            </AnimatedSection>
+          {/* New horizontal scrolling featured work */}
+          <div className="overflow-x-auto pb-8 -mx-4 px-4">
+            <div className="flex space-x-6 min-w-max">
+              <AnimatedSection className="w-[350px] flex-shrink-0 group">
+                <Link to="/portfolio?category=portrait" className="block">
+                  <div className="relative overflow-hidden h-[500px] mb-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9" 
+                      alt="Portrait photography" 
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Portrait</h3>
+                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
+                      <p className="text-white/80">Capturing human essence</p>
+                    </div>
+                  </div>
+                </Link>
+              </AnimatedSection>
+              
+              <AnimatedSection className="w-[350px] flex-shrink-0 group" delay={200}>
+                <Link to="/portfolio?category=restaurant" className="block">
+                  <div className="relative overflow-hidden h-[500px] mb-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07" 
+                      alt="Restaurant photography" 
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Restaurant</h3>
+                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
+                      <p className="text-white/80">Culinary visual stories</p>
+                    </div>
+                  </div>
+                </Link>
+              </AnimatedSection>
+              
+              <AnimatedSection className="w-[350px] flex-shrink-0 group" delay={400}>
+                <Link to="/portfolio?category=café" className="block">
+                  <div className="relative overflow-hidden h-[500px] mb-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
+                      alt="Café photography" 
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Café</h3>
+                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
+                      <p className="text-white/80">Intimate coffee moments</p>
+                    </div>
+                  </div>
+                </Link>
+              </AnimatedSection>
+              
+              <AnimatedSection className="w-[350px] flex-shrink-0 group" delay={600}>
+                <Link to="/portfolio?category=landscape" className="block">
+                  <div className="relative overflow-hidden h-[500px] mb-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                    <img 
+                      src="https://images.unsplash.com/photo-1472396961693-142e6e269027" 
+                      alt="Landscape photography" 
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Landscape</h3>
+                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
+                      <p className="text-white/80">Nature's magnificent canvas</p>
+                    </div>
+                  </div>
+                </Link>
+              </AnimatedSection>
+            </div>
           </div>
           
-          <AnimatedSection className="text-center mt-12" delay={400}>
+          <AnimatedSection className="text-center mt-8" delay={700}>
             <Link to="/portfolio" className="button-effect inline-block">
               View All Work
             </Link>
@@ -281,7 +243,7 @@ const Home = () => {
       </section>
       
       {/* About Preview */}
-      <section className="py-20 px-4 md:px-6 bg-dark-accent snap-start">
+      <section className="py-20 px-4 md:px-6 bg-dark">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <AnimatedSection>
