@@ -5,9 +5,10 @@ import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
-// Register ScrollTrigger plugin
-gsap.registerPlugin(ScrollTrigger);
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const heroImages = [
   "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
@@ -23,42 +24,60 @@ const Home = () => {
   const textRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   
-  // Set up image cycle
+  // Set up faster image cycle
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex(prev => (prev + 1) % heroImages.length);
-    }, 3000); // Change image every 3 seconds
+    }, 1500); // Change image every 1.5 seconds for more dynamic effect
     
     return () => clearInterval(interval);
   }, []);
   
-  // Set up text animations
+  // Enhanced text animations
   useEffect(() => {
     if (textRef.current) {
-      gsap.fromTo(
-        textRef.current.children,
+      // Initial state - all elements hidden
+      gsap.set(textRef.current.children, { 
+        y: 100, 
+        opacity: 0 
+      });
+      
+      // Create more complex animation timeline
+      const tl = gsap.timeline();
+      
+      tl.to(textRef.current.children, { 
+        y: 0, 
+        opacity: 1, 
+        stagger: 0.2, 
+        duration: 1.2,
+        ease: "power3.out"
+      })
+      .fromTo(".letter", 
+        { scale: 0.8, opacity: 0.5 },
         { 
-          y: 100, 
-          opacity: 0 
-        },
-        { 
-          y: 0, 
+          scale: 1, 
           opacity: 1, 
-          stagger: 0.2, 
-          duration: 1.2,
-          ease: "power3.out"
-        }
+          stagger: 0.03, 
+          duration: 0.6,
+          ease: "back.out(1.7)"
+        }, 
+        "-=0.8" // Overlap with previous animation
       );
     }
   }, []);
   
   // Initialize ScrollTrigger for smooth scrolling
   useEffect(() => {
-    // Smooth scroll setup
+    // Set up smooth scrolling
+    gsap.config({
+      nullTargetWarn: false
+    });
+    
+    // Select all sections for snap scrolling
     const sections = document.querySelectorAll('section');
     sectionRefs.current = Array.from(sections);
     
-    // Create scroll triggers
+    // Create scroll triggers for each section
     sectionRefs.current.forEach((section, i) => {
       if (!section) return;
       
@@ -66,6 +85,7 @@ const Home = () => {
         trigger: section,
         start: 'top center',
         end: 'bottom center',
+        markers: false,
         onEnter: () => {
           gsap.to(window, {
             duration: 0.8,
@@ -83,6 +103,21 @@ const Home = () => {
       });
     });
     
+    // Advanced parallax effect for background images
+    if (heroRef.current) {
+      gsap.to(".hero-image.active", {
+        y: "10%",
+        scale: 1.1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+    }
+    
     return () => {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
@@ -93,7 +128,7 @@ const Home = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Hero image parallax effect
+  // Enhanced hero image parallax effect
   useEffect(() => {
     if (heroRef.current) {
       const handleMouseMove = (e: MouseEvent) => {
@@ -101,7 +136,7 @@ const Home = () => {
         const xPos = (clientX / window.innerWidth - 0.5) * 20;
         const yPos = (clientY / window.innerHeight - 0.5) * 20;
         
-        gsap.to(heroRef.current?.querySelector('.hero-image'), {
+        gsap.to(heroRef.current?.querySelector('.hero-image.active'), {
           x: xPos,
           y: yPos,
           duration: 1,
@@ -112,7 +147,14 @@ const Home = () => {
       window.addEventListener('mousemove', handleMouseMove);
       return () => window.removeEventListener('mousemove', handleMouseMove);
     }
-  }, []);
+  }, [currentImageIndex]);
+
+  // Split text into individual letters for animation
+  const splitTextIntoLetters = (text: string) => {
+    return text.split('').map((letter, index) => (
+      <span key={index} className="letter inline-block">{letter}</span>
+    ));
+  };
 
   return (
     <main className="min-h-screen flex flex-col snap-y snap-mandatory">
@@ -125,19 +167,22 @@ const Home = () => {
               src={img}
               alt={`Hero image ${index + 1}`}
               className={`hero-image absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? 'opacity-70' : 'opacity-0'
+                index === currentImageIndex ? 'opacity-70 active' : 'opacity-0'
               }`}
-              style={{ zIndex: index === currentImageIndex ? 1 : 0 }}
+              style={{ 
+                zIndex: index === currentImageIndex ? 1 : 0,
+                transform: 'scale(1.05)'
+              }}
             />
           ))}
         </div>
         
         <div ref={textRef} className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl lg:text-9xl font-light mb-6 tracking-wider uppercase overflow-hidden">
-            <span className="inline-block">Ismail</span>
+            {splitTextIntoLetters("Ismail")}
           </h1>
           <h1 className="text-5xl md:text-7xl lg:text-9xl font-light mb-8 tracking-wider uppercase overflow-hidden">
-            <span className="inline-block">Hansal</span>
+            {splitTextIntoLetters("Hansal")}
           </h1>
           <p className="text-xl md:text-2xl mb-10 text-gray-200 font-light tracking-wide overflow-hidden">
             <span className="inline-block">Capturing moments, creating memories</span>
@@ -152,7 +197,19 @@ const Home = () => {
           </div>
         </div>
         
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer">
+        <div 
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer"
+          onClick={() => {
+            const nextSection = document.querySelector('section:nth-child(2)');
+            if (nextSection) {
+              gsap.to(window, {
+                duration: 1,
+                scrollTo: { y: nextSection, offsetY: 0 },
+                ease: "power3.inOut"
+              });
+            }
+          }}
+        >
           <ArrowDown className="text-white/70 hover:text-white transition-colors" size={32} />
         </div>
       </section>

@@ -5,7 +5,8 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AnimatedSection from '../components/AnimatedSection';
 import CategoryFilter from '../components/CategoryFilter';
-import ImageViewer from '../components/ImageViewer';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 
 // Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
@@ -92,7 +93,7 @@ const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>(portfolioData);
   
-  // Image viewer state
+  // Enhanced image viewer state
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -117,10 +118,30 @@ const Portfolio = () => {
       scrub: 1,
     });
     
+    // Set up masonry animations
+    gsap.set(".masonry-item", { y: 100, opacity: 0 });
+    
+    const items = document.querySelectorAll(".masonry-item");
+    items.forEach((item, index) => {
+      gsap.to(item, {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        delay: index * 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: item,
+          start: "top bottom-=100",
+          toggleActions: "play none none none"
+        }
+      });
+    });
+    
     return () => {
       scrollTrigger.kill();
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
-  }, [categoryParam]);
+  }, [categoryParam, filteredItems]);
 
   useEffect(() => {
     if (activeCategory === "All") {
@@ -139,25 +160,18 @@ const Portfolio = () => {
     }
   }, [activeCategory, setSearchParams]);
 
-  const handleCategorySelect = (category: string) => {
-    setActiveCategory(category);
-  };
-  
+  // Open the enhanced image carousel viewer
   const openImageViewer = (index: number) => {
     setSelectedImageIndex(index);
     setViewerOpen(true);
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when viewer is open
   };
   
+  // Close the enhanced image carousel viewer
   const closeImageViewer = () => {
     setViewerOpen(false);
+    document.body.style.overflow = 'auto'; // Restore scrolling
   };
-  
-  // Prepare images for the viewer
-  const viewerImages = filteredItems.map(item => ({
-    id: item.id,
-    src: item.image,
-    alt: item.title
-  }));
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4 md:px-6">
@@ -173,49 +187,86 @@ const Portfolio = () => {
         <CategoryFilter 
           categories={categories} 
           activeCategory={activeCategory} 
-          onSelectCategory={handleCategorySelect} 
+          onSelectCategory={setActiveCategory} 
         />
         
         {/* Dynamic Masonry Layout */}
-        <div className="masonry-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-[200px]">
           {filteredItems.map((item, index) => (
-            <AnimatedSection 
+            <div 
               key={item.id} 
-              className={`masonry-item ${item.aspectRatio === 'portrait' ? 'row-span-2' : ''} 
-                          overflow-hidden cursor-pointer hover:z-10 transition-all duration-300`}
-              delay={index * 100}
+              className={`masonry-item 
+                ${item.aspectRatio === 'portrait' ? 'row-span-2' : ''} 
+                ${item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''}
+                relative group overflow-hidden cursor-pointer transform transition-all duration-500 hover:z-10 ${
+                  index % 3 === 0 ? 'sm:col-span-2' : index % 5 === 0 ? 'row-span-2' : ''
+                }`}
+              onClick={() => openImageViewer(index)}
             >
-              <div 
-                className="group transform transition-all duration-500 hover:scale-[1.02]"
-                onClick={() => openImageViewer(index)}
-              >
-                <div className="relative overflow-hidden">
-                  <img 
-                    src={item.image} 
-                    alt={item.title}
-                    className={`w-full transition-all duration-700 ease-out 
-                               group-hover:scale-105 ${item.aspectRatio === 'portrait' ? 'h-[500px]' : 'h-[300px]'} 
-                               object-cover`}
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <span className="text-white text-lg uppercase tracking-wider font-light">
-                      {item.title}
-                    </span>
-                  </div>
-                </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-4 z-10">
+                <h3 className="text-white text-lg font-light tracking-wider transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{item.title}</h3>
               </div>
-            </AnimatedSection>
+              <div className="h-full w-full overflow-hidden">
+                <img 
+                  src={item.image} 
+                  alt={item.title}
+                  className="h-full w-full object-cover transition-all duration-700 ease-out transform group-hover:scale-110"
+                />
+              </div>
+            </div>
           ))}
         </div>
       </div>
       
-      {/* Full-screen Image Viewer */}
-      <ImageViewer 
-        images={viewerImages}
-        initialIndex={selectedImageIndex}
-        isOpen={viewerOpen}
-        onClose={closeImageViewer}
-      />
+      {/* Full-screen Enhanced Carousel Viewer */}
+      {viewerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+          <button 
+            onClick={closeImageViewer} 
+            className="absolute top-6 right-6 z-50 text-white hover:text-gray-300 transition-colors"
+            aria-label="Close image viewer"
+          >
+            <X size={32} />
+          </button>
+          
+          <Carousel className="w-full max-w-6xl px-8">
+            <CarouselContent>
+              {filteredItems.map((item, index) => (
+                <CarouselItem key={item.id}>
+                  <div className="flex items-center justify-center h-[80vh] p-1">
+                    <img 
+                      src={item.image} 
+                      alt={item.title} 
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="lg:-left-20 left-4" variant="outline" size="lg">
+              <ArrowLeft className="h-6 w-6" />
+            </CarouselPrevious>
+            <CarouselNext className="lg:-right-20 right-4" variant="outline" size="lg">
+              <ArrowRight className="h-6 w-6" />
+            </CarouselNext>
+          </Carousel>
+          
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center">
+            <div className="flex space-x-2">
+              {filteredItems.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className={`w-2 h-2 rounded-full ${
+                    index === selectedImageIndex ? 'bg-white' : 'bg-white/30'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
