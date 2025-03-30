@@ -98,10 +98,19 @@
   }
   
   .card-shine::before {
-    @apply content-[''] absolute top-0 left-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-15 animate-image-shine;
+    @apply content-[''] absolute top-0 left-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-image-shine;
   }
 
   .image-grid {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+  }
+}
+
+@layer utilities {
+  .skew-x-15 {
+    transform: skewX(15deg);
+  }
+  .-skew-x-15 {
+    transform: skewX(-15deg);
   }
 }
