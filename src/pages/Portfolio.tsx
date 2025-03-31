@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -89,13 +89,18 @@ const Portfolio = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category')?.toLowerCase();
   
-  const categories = ["All", "Portrait", "Restaurant", "Café", "Landscape"];
+  const categories = useMemo(() => ["All", "Portrait", "Restaurant", "Café", "Landscape"], []);
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>(portfolioData);
   
   // Enhanced image viewer state
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Memoize category selection handler to prevent recreating on each render
+  const handleCategorySelect = useCallback((category: string) => {
+    setActiveCategory(category);
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -109,9 +114,11 @@ const Portfolio = () => {
         setActiveCategory(matchedCategory);
       }
     }
-  }, [categoryParam]);
+  }, [categoryParam, categories]);
 
+  // Memoize filtered items calculation to avoid recalculation on every render
   useEffect(() => {
+    // Only update filtered items when category changes
     if (activeCategory === "All") {
       setFilteredItems(portfolioData);
     } else {
@@ -129,17 +136,17 @@ const Portfolio = () => {
   }, [activeCategory, setSearchParams]);
 
   // Open the enhanced image carousel viewer
-  const openImageViewer = (index: number) => {
+  const openImageViewer = useCallback((index: number) => {
     setSelectedImageIndex(index);
     setViewerOpen(true);
     document.body.style.overflow = 'hidden'; // Prevent scrolling when viewer is open
-  };
+  }, []);
   
   // Close the enhanced image carousel viewer
-  const closeImageViewer = () => {
+  const closeImageViewer = useCallback(() => {
     setViewerOpen(false);
     document.body.style.overflow = 'auto'; // Restore scrolling
-  };
+  }, []);
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4 md:px-6">
@@ -155,15 +162,15 @@ const Portfolio = () => {
         <CategoryFilter 
           categories={categories} 
           activeCategory={activeCategory} 
-          onSelectCategory={setActiveCategory} 
+          onSelectCategory={handleCategorySelect} 
         />
         
-        {/* Clean Grid Layout with Improved Animation */}
+        {/* Clean Grid Layout with Improved Animation - Using will-change for better performance */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-[200px]">
           {filteredItems.map((item, index) => (
             <div 
               key={item.id} 
-              className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 ${
+              className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform ${
                 item.aspectRatio === 'portrait' ? 'masonry-item-tall' : ''
               } ${
                 item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''
@@ -176,7 +183,8 @@ const Portfolio = () => {
                 <img 
                   src={item.image} 
                   alt={item.title}
-                  className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                  className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
                 />
               </div>
             </div>
@@ -184,12 +192,12 @@ const Portfolio = () => {
         </div>
       </div>
       
-      {/* Improved Full-screen Carousel Viewer with Better Arrow Visibility */}
+      {/* Full-screen Carousel Viewer with Better Visibility and Performance */}
       {viewerOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
           <button 
             onClick={closeImageViewer} 
-            className="absolute top-6 right-6 z-50 text-white hover:text-gray-300 transition-colors"
+            className="absolute top-6 right-6 z-50 text-white hover:text-gray-300 transition-colors bg-black/20 p-2 rounded-full"
             aria-label="Close image viewer"
           >
             <X size={32} />
@@ -209,10 +217,10 @@ const Portfolio = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute left-4 md:left-10 bg-white/20 text-white hover:bg-white/60 hover:text-black w-12 h-12 rounded-full">
+            <CarouselPrevious className="absolute left-4 md:left-10 bg-white/30 text-white hover:bg-white/60 hover:text-black w-12 h-12 rounded-full">
               <ArrowLeft className="h-8 w-8" />
             </CarouselPrevious>
-            <CarouselNext className="absolute right-4 md:right-10 bg-white/20 text-white hover:bg-white/60 hover:text-black w-12 h-12 rounded-full">
+            <CarouselNext className="absolute right-4 md:right-10 bg-white/30 text-white hover:bg-white/60 hover:text-black w-12 h-12 rounded-full">
               <ArrowRight className="h-8 w-8" />
             </CarouselNext>
           </Carousel>

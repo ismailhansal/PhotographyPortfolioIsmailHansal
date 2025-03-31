@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import React, { memo } from 'react';
 
 interface CategoryFilterProps {
   categories: string[];
@@ -7,7 +7,8 @@ interface CategoryFilterProps {
   onSelectCategory: (category: string) => void;
 }
 
-const CategoryFilter = ({ categories, activeCategory, onSelectCategory }: CategoryFilterProps) => {
+// Memo to prevent unnecessary re-renders when parent re-renders but props haven't changed
+const CategoryFilter = memo(({ categories, activeCategory, onSelectCategory }: CategoryFilterProps) => {
   return (
     <div className="flex flex-wrap gap-4 justify-center mb-12">
       {categories.map((category) => (
@@ -25,6 +26,8 @@ const CategoryFilter = ({ categories, activeCategory, onSelectCategory }: Catego
       ))}
     </div>
   );
-};
+});
+
+CategoryFilter.displayName = 'CategoryFilter';
 
 export default CategoryFilter;
