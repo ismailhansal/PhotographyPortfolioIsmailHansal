@@ -13,6 +13,8 @@ import Portfolio from "./pages/Portfolio";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import gsap from "gsap";
+import PopupButton from '@/components/PopupButton';
+
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,7 @@ const App = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <PopupButton />
             <Footer />
           </div>
         </BrowserRouter>

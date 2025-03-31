@@ -190,7 +190,7 @@ const Home = () => {
               <img 
                 src={meabout} 
                 alt="Ismail Hansal" 
-                className="w-full h-[400px] md:h-[900px] object-cover object-top" 
+                className="w-full h-[350px] md:h-[900px] object-cover object-top" 
                 />
             </AnimatedSection>
             

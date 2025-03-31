@@ -559,6 +559,25 @@ const Portfolio = () => {
       />
     </div>
   ))}
+
+
+{filteredItems.map(item => (
+  <div key={item.id} className="portfolio-item">
+    <img
+      src={item.image}
+      alt={item.title}
+      className={`w-full ${item.aspectRatio === 'portrait' ? 'h-[8000px] md:h-[400px] object-cover' : 'h-auto'}`}
+    />
+  </div>
+))}
+
+
+
+
+
+
+
+
 </div>
       </div>
       
