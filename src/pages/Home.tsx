@@ -4,13 +4,20 @@ import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import gsap from 'gsap';
+import cabestan from '@/assets/cabestan.jpg'
+import ciel from '@/assets/ciel.jpg'
+import ducasse from '@/assets/ducasse.jpg'
+import immo from '@/assets/immo.jpg'
+import portrait from '@/assets/portrait.jpg'
+import steak from '@/assets/steak.jpg'
+
 
 const heroImages = [
-  "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-  "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9",
-  "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
-  "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-  "https://images.unsplash.com/photo-1500375592092-40eb2168fd21"
+  ducasse,
+  ciel,
+  steak,
+  immo,
+  cabestan
 ];
 
 const Home = () => {
@@ -108,7 +115,7 @@ const Home = () => {
               }`}
               style={{ 
                 zIndex: index === currentImageIndex ? 1 : 0,
-                transform: 'scale(1.05)'
+                transform: 'scale(1)'
               }}
             />
           ))}

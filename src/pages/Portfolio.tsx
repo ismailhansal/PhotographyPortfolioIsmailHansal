@@ -7,6 +7,9 @@ import AnimatedSection from '../components/AnimatedSection';
 import CategoryFilter from '../components/CategoryFilter';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
+import portrait from '@/assets/portrait.jpg'
+import ducasse from '@/assets/ducasse.jpg'
+
 
 // Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
@@ -25,7 +28,7 @@ const portfolioData: PortfolioItem[] = [
     id: 1,
     title: "Mountain Portrait",
     category: "Portrait",
-    image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9",
+    image: portrait,
     aspectRatio: "portrait"
   },
   {
@@ -33,7 +36,7 @@ const portfolioData: PortfolioItem[] = [
     title: "Urban Portrait",
     category: "Portrait",
     image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb",
-    aspectRatio: "landscape"
+    aspectRatio: "portrait"
   },
   
   // Restaurant
@@ -41,7 +44,7 @@ const portfolioData: PortfolioItem[] = [
     id: 3,
     title: "Fine Dining",
     category: "Restaurant",
-    image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
+    image: ducasse,
     aspectRatio: "landscape"
   },
   {
