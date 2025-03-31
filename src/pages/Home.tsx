@@ -4,17 +4,27 @@ import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import gsap from 'gsap';
+import { useIsMobile } from '../hooks/use-mobile';
 import cabestan from '@/assets/cabestan.webp'
 import ciel from '@/assets/ciel.webp'
 import ducasse from '@/assets/ducasse.webp'
 import immo from '@/assets/immo.webp'
 import steak from '@/assets/steak.webp'
+import portrait from '@/assets/portrait.webp'
 
-
-const heroImages = [
+// Desktop hero images
+const desktopHeroImages = [
   ducasse,
   ciel,
   steak,
+  immo,
+  cabestan
+];
+
+// Mobile hero images (portrait format)
+const mobileHeroImages = [
+  portrait,
+  ducasse,
   immo,
   cabestan
 ];
@@ -23,6 +33,10 @@ const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  
+  // Get the appropriate images based on device
+  const heroImages = isMobile ? mobileHeroImages : desktopHeroImages;
   
   // Set up faster image cycle
   useEffect(() => {
@@ -31,7 +45,7 @@ const Home = () => {
     }, 1500); // Change image every 1.5 seconds for more dynamic effect
     
     return () => clearInterval(interval);
-  }, []);
+  }, [heroImages]);
   
   // Enhanced text animations
   useEffect(() => {
@@ -145,12 +159,47 @@ const Home = () => {
             className="text-white/70 hover:text-white transition-colors" 
             size={32} 
             onClick={() => {
-              const featuredSection = document.querySelector('#featured-work');
-              if (featuredSection) {
-                featuredSection.scrollIntoView({ behavior: 'smooth' });
+              const aboutSection = document.querySelector('#about-section');
+              if (aboutSection) {
+                aboutSection.scrollIntoView({ behavior: 'smooth' });
               }
             }}
           />
+        </div>
+      </section>
+
+      {/* About Me Preview - Now positioned right after Hero */}
+      <section id="about-section" className="py-20 px-4 md:px-6 bg-dark">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <AnimatedSection>
+              <img 
+                src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
+                alt="Ismail Hansal" 
+                className="w-full h-[600px] object-cover"
+              />
+            </AnimatedSection>
+            
+            <AnimatedSection delay={200}>
+              <h2 className="text-3xl md:text-4xl uppercase tracking-wider mb-6">About Me</h2>
+              <div className="w-16 h-px bg-white/40 mb-6"></div>
+              <p className="text-gray-300 mb-6 leading-relaxed">
+                As a photographer, I am dedicated to capturing the extraordinary in the ordinary, 
+                finding beauty in unexpected places, and preserving moments that tell compelling stories.
+              </p>
+              <p className="text-gray-300 mb-8 leading-relaxed">
+                My journey in photography began over a decade ago, and since then, I've had the privilege 
+                of working with amazing clients across various industries, from fashion and food to landscapes and architecture.
+              </p>
+              <p className="text-gray-300 mb-8 leading-relaxed">
+                With a keen eye for detail and a passion for storytelling through visuals, I approach each project 
+                with creativity and dedication, ensuring that every image captures not just the subject, but the emotion and atmosphere of the moment.
+              </p>
+              <Link to="/about" className="button-effect inline-block">
+                Learn More
+              </Link>
+            </AnimatedSection>
+          </div>
         </div>
       </section>
 
@@ -219,37 +268,6 @@ const Home = () => {
               View All Work
             </Link>
           </AnimatedSection>
-        </div>
-      </section>
-      
-      {/* About Preview */}
-      <section className="py-20 px-4 md:px-6 bg-dark">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <AnimatedSection>
-              <img 
-                src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
-                alt="Ismail Hansal" 
-                className="w-full h-[600px] object-cover"
-              />
-            </AnimatedSection>
-            
-            <AnimatedSection delay={200}>
-              <h2 className="text-3xl md:text-4xl uppercase tracking-wider mb-6">About Me</h2>
-              <div className="w-16 h-px bg-white/40 mb-6"></div>
-              <p className="text-gray-300 mb-6 leading-relaxed">
-                As a photographer, I am dedicated to capturing the extraordinary in the ordinary, 
-                finding beauty in unexpected places, and preserving moments that tell compelling stories.
-              </p>
-              <p className="text-gray-300 mb-8 leading-relaxed">
-                My journey in photography began over a decade ago, and since then, I've had the privilege 
-                of working with amazing clients across various industries, from fashion and food to landscapes and architecture.
-              </p>
-              <Link to="/about" className="button-effect inline-block">
-                Learn More
-              </Link>
-            </AnimatedSection>
-          </div>
         </div>
       </section>
     </main>

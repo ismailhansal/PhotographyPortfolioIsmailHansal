@@ -7,7 +7,7 @@ import AnimatedSection from '../components/AnimatedSection';
 import CategoryFilter from '../components/CategoryFilter';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
-
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 // Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
@@ -166,53 +166,56 @@ const Portfolio = () => {
           onSelectCategory={handleCategorySelect} 
         />
         
-        {/* Clean Grid Layout with Improved Animation - Using will-change for better performance */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-[200px]">
+        {/* Improved Grid Layout with proper aspect ratios */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filteredItems.map((item, index) => (
             <div 
               key={item.id} 
               className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform ${
-                item.aspectRatio === 'portrait' ? 'masonry-item-tall' : ''
-              } ${
                 item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''
-              } ${
-                index % 3 === 0 ? 'sm:col-span-2' : index % 5 === 0 ? 'masonry-item-tall' : ''
               }`}
               onClick={() => openImageViewer(index)}
             >
-              <div className="h-full w-full overflow-hidden">
+              <AspectRatio 
+                ratio={item.aspectRatio === 'landscape' ? 16/9 : item.aspectRatio === 'portrait' ? 3/4 : 1} 
+                className="overflow-hidden"
+              >
                 <img 
                   src={item.image} 
                   alt={item.title}
                   loading="lazy"
                   className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
                 />
-              </div>
+              </AspectRatio>
             </div>
           ))}
         </div>
       </div>
       
-      {/* Full-screen Carousel Viewer with Better Visibility and Performance */}
+      {/* Full-screen Carousel Viewer with Better Visibility */}
       {viewerOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
           <button 
             onClick={closeImageViewer} 
-            className="absolute top-6 right-6 z-50 text-white hover:text-gray-300 transition-colors bg-black/20 p-2 rounded-full"
+            className="absolute top-6 right-6 z-50 text-white hover:text-gray-300 transition-colors bg-black/50 p-2 rounded-full"
             aria-label="Close image viewer"
           >
             <X size={32} />
           </button>
           
-          <Carousel className="w-full max-w-6xl">
+          <Carousel className="w-full max-w-7xl">
             <CarouselContent>
               {filteredItems.map((item, index) => (
                 <CarouselItem key={item.id}>
-                  <div className="flex items-center justify-center h-[80vh] p-1">
+                  <div className={`flex items-center justify-center h-[80vh] p-4 ${
+                    item.aspectRatio === 'landscape' ? 'max-h-screen' : ''
+                  }`}>
                     <img 
                       src={item.image} 
                       alt={item.title} 
-                      className="max-h-full max-w-full object-contain transition-all duration-300"
+                      className={`max-h-full ${
+                        item.aspectRatio === 'landscape' ? 'w-auto h-auto max-w-full' : 'max-w-full'
+                      } object-contain transition-all duration-300`}
                     />
                   </div>
                 </CarouselItem>
