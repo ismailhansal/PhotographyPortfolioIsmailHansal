@@ -1,16 +1,21 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import gsap from 'gsap';
 import { useIsMobile } from '../hooks/use-mobile';
-import cabestan from '@/assets/cabestan.webp'
-import ciel from '@/assets/ciel.webp'
-import ducasse from '@/assets/ducasse.webp'
-import immo from '@/assets/immo.webp'
-import steak from '@/assets/steak.webp'
-import portrait from '@/assets/portrait.webp'
+import cabestan from '@/assets/cabestan.webp';
+import ciel from '@/assets/ciel.webp';
+import ducasse from '@/assets/ducasse.webp';
+import immo from '@/assets/immo.webp';
+import steak from '@/assets/steak.webp';
+import portrait from '@/assets/portrait.webp';
+
+import burgermobile from '@/assets/mobile/burger-mobile.webp';
+import ducassemobile from '@/assets/mobile/ducasse-mobile.webp';
+import immomobile from '@/assets/mobile/immo-mobile.webp';
+import packomobile from '@/assets/mobile/packo-mobile.webp';
+import pizzamobile from '@/assets/mobile/pizza-mobile.webp';
 
 // Desktop hero images
 const desktopHeroImages = [
@@ -18,15 +23,16 @@ const desktopHeroImages = [
   ciel,
   steak,
   immo,
-  cabestan
+  cabestan,
 ];
 
 // Mobile hero images (portrait format)
 const mobileHeroImages = [
-  portrait,
-  ducasse,
-  immo,
-  cabestan
+  pizzamobile,
+  ducassemobile,
+  immomobile,
+  burgermobile,
+  packomobile
 ];
 
 const Home = () => {
@@ -36,7 +42,13 @@ const Home = () => {
   const isMobile = useIsMobile();
   
   // Get the appropriate images based on device
-  const heroImages = isMobile ? mobileHeroImages : desktopHeroImages;
+  const [heroImages, setHeroImages] = useState(isMobile ? mobileHeroImages : desktopHeroImages);
+  
+  // Update images when switching between mobile and desktop
+  useEffect(() => {
+    setHeroImages(isMobile ? mobileHeroImages : desktopHeroImages);
+    setCurrentImageIndex(0); // Reset image index when switching images
+  }, [isMobile]); // Runs when isMobile changes
   
   // Set up faster image cycle
   useEffect(() => {
@@ -200,74 +212,6 @@ const Home = () => {
               </Link>
             </AnimatedSection>
           </div>
-        </div>
-      </section>
-
-      {/* Redesigned Featured Work Section - Clean Grid Layout */}
-      <section id="featured-work" className="py-20 px-4 md:px-6 bg-dark-accent">
-        <div className="container mx-auto">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl uppercase tracking-wider mb-4">Featured Work</h2>
-            <div className="w-16 h-px bg-white/40 mx-auto mb-6"></div>
-            <p className="text-gray-300 max-w-2xl mx-auto">Explore a selection of my most impactful photography projects</p>
-          </AnimatedSection>
-          
-          {/* Clean grid layout with focus on images */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <AnimatedSection className="overflow-hidden group">
-              <Link to="/portfolio?category=portrait" className="block h-full">
-                <div className="overflow-hidden h-[300px] w-full">
-                  <img 
-                    src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9" 
-                    alt="Portrait photography" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-              </Link>
-            </AnimatedSection>
-            
-            <AnimatedSection className="overflow-hidden group" delay={100}>
-              <Link to="/portfolio?category=restaurant" className="block h-full">
-                <div className="overflow-hidden h-[300px] w-full">
-                  <img 
-                    src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07" 
-                    alt="Restaurant photography" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-              </Link>
-            </AnimatedSection>
-            
-            <AnimatedSection className="overflow-hidden group" delay={200}>
-              <Link to="/portfolio?category=café" className="block h-full">
-                <div className="overflow-hidden h-[300px] w-full">
-                  <img 
-                    src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
-                    alt="Café photography" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-              </Link>
-            </AnimatedSection>
-            
-            <AnimatedSection className="overflow-hidden group" delay={300}>
-              <Link to="/portfolio?category=landscape" className="block h-full">
-                <div className="overflow-hidden h-[300px] w-full">
-                  <img 
-                    src="https://images.unsplash.com/photo-1472396961693-142e6e269027" 
-                    alt="Landscape photography" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-              </Link>
-            </AnimatedSection>
-          </div>
-          
-          <AnimatedSection className="text-center mt-8" delay={400}>
-            <Link to="/portfolio" className="button-effect inline-block">
-              View All Work
-            </Link>
-          </AnimatedSection>
         </div>
       </section>
     </main>
