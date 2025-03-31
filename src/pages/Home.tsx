@@ -148,93 +148,67 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Redesigned Featured Work Section */}
+      {/* Redesigned Featured Work Section - Clean Grid Layout */}
       <section id="featured-work" className="py-20 px-4 md:px-6 bg-dark-accent">
         <div className="container mx-auto">
           <AnimatedSection className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl uppercase tracking-wider mb-4">Featured Work</h2>
             <div className="w-16 h-px bg-white/40 mx-auto mb-6"></div>
-            <p className="text-gray-300 max-w-2xl mx-auto">Explore a selection of my most impactful photography projects across different genres</p>
+            <p className="text-gray-300 max-w-2xl mx-auto">Explore a selection of my most impactful photography projects</p>
           </AnimatedSection>
           
-          {/* New horizontal scrolling featured work */}
-          <div className="overflow-x-auto pb-8 -mx-4 px-4">
-            <div className="flex space-x-6 min-w-max">
-              <AnimatedSection className="w-[350px] flex-shrink-0 group">
-                <Link to="/portfolio?category=portrait" className="block">
-                  <div className="relative overflow-hidden h-[500px] mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                    <img 
-                      src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9" 
-                      alt="Portrait photography" 
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Portrait</h3>
-                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
-                      <p className="text-white/80">Capturing human essence</p>
-                    </div>
-                  </div>
-                </Link>
-              </AnimatedSection>
-              
-              <AnimatedSection className="w-[350px] flex-shrink-0 group" delay={200}>
-                <Link to="/portfolio?category=restaurant" className="block">
-                  <div className="relative overflow-hidden h-[500px] mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                    <img 
-                      src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07" 
-                      alt="Restaurant photography" 
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Restaurant</h3>
-                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
-                      <p className="text-white/80">Culinary visual stories</p>
-                    </div>
-                  </div>
-                </Link>
-              </AnimatedSection>
-              
-              <AnimatedSection className="w-[350px] flex-shrink-0 group" delay={400}>
-                <Link to="/portfolio?category=café" className="block">
-                  <div className="relative overflow-hidden h-[500px] mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                    <img 
-                      src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
-                      alt="Café photography" 
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Café</h3>
-                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
-                      <p className="text-white/80">Intimate coffee moments</p>
-                    </div>
-                  </div>
-                </Link>
-              </AnimatedSection>
-              
-              <AnimatedSection className="w-[350px] flex-shrink-0 group" delay={600}>
-                <Link to="/portfolio?category=landscape" className="block">
-                  <div className="relative overflow-hidden h-[500px] mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                    <img 
-                      src="https://images.unsplash.com/photo-1472396961693-142e6e269027" 
-                      alt="Landscape photography" 
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 p-6 z-20 transform translate-y-10 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      <h3 className="text-2xl uppercase tracking-wider mb-2 text-white">Landscape</h3>
-                      <div className="w-10 h-[1px] bg-white/60 mb-2"></div>
-                      <p className="text-white/80">Nature's magnificent canvas</p>
-                    </div>
-                  </div>
-                </Link>
-              </AnimatedSection>
-            </div>
+          {/* Clean grid layout with focus on images */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <AnimatedSection className="overflow-hidden group">
+              <Link to="/portfolio?category=portrait" className="block h-full">
+                <div className="overflow-hidden h-[300px] w-full">
+                  <img 
+                    src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9" 
+                    alt="Portrait photography" 
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+              </Link>
+            </AnimatedSection>
+            
+            <AnimatedSection className="overflow-hidden group" delay={100}>
+              <Link to="/portfolio?category=restaurant" className="block h-full">
+                <div className="overflow-hidden h-[300px] w-full">
+                  <img 
+                    src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07" 
+                    alt="Restaurant photography" 
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+              </Link>
+            </AnimatedSection>
+            
+            <AnimatedSection className="overflow-hidden group" delay={200}>
+              <Link to="/portfolio?category=café" className="block h-full">
+                <div className="overflow-hidden h-[300px] w-full">
+                  <img 
+                    src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
+                    alt="Café photography" 
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+              </Link>
+            </AnimatedSection>
+            
+            <AnimatedSection className="overflow-hidden group" delay={300}>
+              <Link to="/portfolio?category=landscape" className="block h-full">
+                <div className="overflow-hidden h-[300px] w-full">
+                  <img 
+                    src="https://images.unsplash.com/photo-1472396961693-142e6e269027" 
+                    alt="Landscape photography" 
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+              </Link>
+            </AnimatedSection>
           </div>
           
-          <AnimatedSection className="text-center mt-8" delay={700}>
+          <AnimatedSection className="text-center mt-8" delay={400}>
             <Link to="/portfolio" className="button-effect inline-block">
               View All Work
             </Link>

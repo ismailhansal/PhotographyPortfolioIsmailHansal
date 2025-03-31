@@ -109,39 +109,7 @@ const Portfolio = () => {
         setActiveCategory(matchedCategory);
       }
     }
-    
-    // Initialize scroll animations
-    const scrollTrigger = ScrollTrigger.create({
-      trigger: document.body,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: 1,
-    });
-    
-    // Set up masonry animations
-    gsap.set(".masonry-item", { y: 100, opacity: 0 });
-    
-    const items = document.querySelectorAll(".masonry-item");
-    items.forEach((item, index) => {
-      gsap.to(item, {
-        y: 0,
-        opacity: 1,
-        duration: 0.8,
-        delay: index * 0.1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: item,
-          start: "top bottom-=100",
-          toggleActions: "play none none none"
-        }
-      });
-    });
-    
-    return () => {
-      scrollTrigger.kill();
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, [categoryParam, filteredItems]);
+  }, [categoryParam]);
 
   useEffect(() => {
     if (activeCategory === "All") {
@@ -190,27 +158,25 @@ const Portfolio = () => {
           onSelectCategory={setActiveCategory} 
         />
         
-        {/* Dynamic Masonry Layout */}
+        {/* Clean Masonry Layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-[200px]">
           {filteredItems.map((item, index) => (
             <div 
               key={item.id} 
-              className={`masonry-item 
-                ${item.aspectRatio === 'portrait' ? 'masonry-item-tall' : ''} 
-                ${item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''}
-                relative group overflow-hidden cursor-pointer transform transition-all duration-500 hover:z-10 ${
-                  index % 3 === 0 ? 'sm:col-span-2' : index % 5 === 0 ? 'masonry-item-tall' : ''
-                }`}
+              className={`overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:z-10 ${
+                item.aspectRatio === 'portrait' ? 'masonry-item-tall' : ''
+              } ${
+                item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''
+              } ${
+                index % 3 === 0 ? 'sm:col-span-2' : index % 5 === 0 ? 'masonry-item-tall' : ''
+              }`}
               onClick={() => openImageViewer(index)}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-4 z-10">
-                <h3 className="text-white text-lg font-light tracking-wider transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{item.title}</h3>
-              </div>
               <div className="h-full w-full overflow-hidden">
                 <img 
                   src={item.image} 
                   alt={item.title}
-                  className="h-full w-full object-cover transition-all duration-700 ease-out transform group-hover:scale-110"
+                  className="h-full w-full object-cover"
                 />
               </div>
             </div>
@@ -218,7 +184,7 @@ const Portfolio = () => {
         </div>
       </div>
       
-      {/* Full-screen Enhanced Carousel Viewer */}
+      {/* Full-screen Carousel Viewer with Improved Arrow Visibility */}
       {viewerOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
           <button 
@@ -229,7 +195,7 @@ const Portfolio = () => {
             <X size={32} />
           </button>
           
-          <Carousel className="w-full max-w-6xl px-8">
+          <Carousel className="w-full max-w-6xl">
             <CarouselContent>
               {filteredItems.map((item, index) => (
                 <CarouselItem key={item.id}>
@@ -243,28 +209,13 @@ const Portfolio = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="lg:-left-20 left-4" variant="outline" size="lg">
-              <ArrowLeft className="h-6 w-6" />
+            <CarouselPrevious className="bg-white/20 text-white left-4 hover:bg-white/40" size="lg">
+              <ArrowLeft className="h-8 w-8" />
             </CarouselPrevious>
-            <CarouselNext className="lg:-right-20 right-4" variant="outline" size="lg">
-              <ArrowRight className="h-6 w-6" />
+            <CarouselNext className="bg-white/20 text-white right-4 hover:bg-white/40" size="lg">
+              <ArrowRight className="h-8 w-8" />
             </CarouselNext>
           </Carousel>
-          
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center">
-            <div className="flex space-x-2">
-              {filteredItems.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImageIndex(index)}
-                  className={`w-2 h-2 rounded-full ${
-                    index === selectedImageIndex ? 'bg-white' : 'bg-white/30'
-                  }`}
-                  aria-label={`Go to image ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </main>
