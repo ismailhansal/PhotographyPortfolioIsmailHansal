@@ -17,6 +17,8 @@ import immomobile from '@/assets/mobile/immo-mobile.webp';
 import packomobile from '@/assets/mobile/packo-mobile.webp';
 import pizzamobile from '@/assets/mobile/pizza-mobile.webp';
 
+import meabout from '@/assets/me-about.webp'
+
 // Desktop hero images
 const desktopHeroImages = [
   ducasse,
@@ -182,14 +184,14 @@ const Home = () => {
 
       {/* About Me Preview - Now positioned right after Hero */}
       <section id="about-section" className="py-20 px-4 md:px-6 bg-dark">
-        <div className="container mx-auto">
+        <div className=" max-w-[95%]  mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <AnimatedSection>
               <img 
-                src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
+                src={meabout} 
                 alt="Ismail Hansal" 
-                className="w-full h-[600px] object-cover"
-              />
+                className="w-full h-[400px] md:h-[900px] object-cover object-top" 
+                />
             </AnimatedSection>
             
             <AnimatedSection delay={200}>

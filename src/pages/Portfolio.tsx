@@ -527,7 +527,7 @@ const Portfolio = () => {
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4 md:px-6">
-      <div className="container mx-auto">
+      <div className="w-[95%] md:container mx-auto">
         <AnimatedSection className="text-center mb-12">
           <h1 className="text-3xl md:text-5xl uppercase tracking-wider mb-4">Portfolio</h1>
           <p className="text-gray-300 max-w-2xl mx-auto mb-8">

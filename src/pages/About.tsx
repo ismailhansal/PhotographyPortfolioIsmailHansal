@@ -2,6 +2,8 @@
 import { useEffect } from 'react';
 import AnimatedSection from '../components/AnimatedSection';
 
+import meabout from '@/assets/me-about.webp'
+
 const About = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -15,46 +17,41 @@ const About = () => {
           <div className="w-16 h-px bg-white/40 mx-auto"></div>
         </AnimatedSection>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 ">
           <AnimatedSection>
             <img 
-              src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21" 
+              src={meabout}
               alt="Ismail Hansal" 
-              className="w-full object-cover aspect-[3/4]"
+              className="w-full object-cover"
             />
           </AnimatedSection>
           
           <AnimatedSection delay={200}>
-            <h2 className="text-3xl uppercase tracking-wider mb-6">Ismail Hansal</h2>
+            <h2 className="text-3xl uppercase tracking-wider mb-6 mt-16">Ismail Hansal</h2>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              I am a professional photographer with over 10 years of experience capturing 
-              moments across portrait, commercial, and landscape photography. My passion lies 
-              in finding the perfect light, composition, and moment to tell compelling visual stories.
+            I am a professional photographer specializing in culinary, restaurant, real estate, and male portrait photography. With years of experience in the field, my approach goes beyond simply capturing images—I strive to bring an artistic vision to every project I undertake.
             </p>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              After studying photography at the Academy of Fine Arts, I began my career documenting 
-              travel experiences across five continents. This experience shaped my unique perspective 
-              and approach to photography that combines technical precision with artistic vision.
+            For me, photography is not just about pressing the shutter; it’s about seeing light, textures, and emotions in a unique way. I aim to create images that don’t just showcase a subject but tell a story, evoke a mood, and leave an impact.
             </p>
             <p className="text-gray-300 mb-8 leading-relaxed">
-              Today, I work with clients ranging from individuals seeking portrait sessions to 
-              restaurants and cafés wanting to showcase their ambiance and offerings, as well as 
-              magazines and brands looking for distinctive landscape and lifestyle imagery.
+            I collaborate with restaurants and cafés to highlight their ambiance and dishes in the most appetizing way. I work with real estate professionals to craft visuals that enhance property appeal. My portrait photography is about capturing authenticity and personality, creating timeless images that reflect confidence and character.
             </p>
             
             <div className="mt-8">
               <h3 className="text-xl uppercase tracking-wider mb-4">My Approach</h3>
               <p className="text-gray-300 mb-6 leading-relaxed">
-                I believe that great photography is about patience, connection, and the ability 
-                to see beauty in the ordinary. Every session is approached with intention and care, 
-                ensuring that the final images exceed expectations and stand the test of time.
+              Every project is approached with precision, creativity, and attention to detail. I carefully compose each shot to bring out the best in my subjects, ensuring that the final images are both visually striking and meaningful.
+              Whether working with businesses or individuals, my goal remains the same: to create powerful images that tell stories, inspire emotions, and leave a lasting impression.
               </p>
               <p className="text-gray-300 leading-relaxed">
-                Whether I'm photographing people, places, or products, my goal remains the same: 
-                to create images that evoke emotion, tell stories, and capture the authentic essence 
-                of the subject.
+              Whether working with businesses or individuals, my goal remains the same: to create powerful images that tell stories, inspire emotions, and leave a lasting impression.
               </p>
             </div>
+
+           
+
+
           </AnimatedSection>
         </div>
         
@@ -65,9 +62,7 @@ const About = () => {
               <div>
                 <h3 className="text-lg uppercase mb-3">Camera Systems</h3>
                 <ul className="text-gray-300 space-y-2">
-                  <li>Sony Alpha Series</li>
-                  <li>Canon EOS Professional</li>
-                  <li>Hasselblad Medium Format</li>
+                  <li>Fujifilm Xt3</li>
                 </ul>
               </div>
               <div>

@@ -65,7 +65,7 @@ const Contact = () => {
                   <div>
                     <h3 className="font-medium mb-1">Email</h3>
                     <a href="mailto:contact@ismailhansal.com" className="text-gray-300 hover:text-white transition-colors">
-                      contact@ismailhansal.com
+                      ismailhansal3@gmail.com
                     </a>
                   </div>
                 </div>
@@ -75,7 +75,7 @@ const Contact = () => {
                   <div>
                     <h3 className="font-medium mb-1">Phone</h3>
                     <a href="tel:+1234567890" className="text-gray-300 hover:text-white transition-colors">
-                      +1 (234) 567-890
+                      +212 700917099
                     </a>
                   </div>
                 </div>
@@ -83,11 +83,10 @@ const Contact = () => {
                 <div className="flex items-start">
                   <MapPin className="w-5 h-5 mt-1 mr-4" />
                   <div>
-                    <h3 className="font-medium mb-1">Studio Location</h3>
+                    <h3 className="font-medium mb-1">Location</h3>
                     <address className="text-gray-300 not-italic">
-                      123 Photography Lane<br />
-                      Creative District<br />
-                      New York, NY 10001
+                      Casablanca, Morocco<br />
+                      
                     </address>
                   </div>
                 </div>
@@ -97,7 +96,7 @@ const Contact = () => {
                 <h3 className="text-xl uppercase tracking-wider mb-4">Follow Me</h3>
                 <div className="flex space-x-4">
                   <a 
-                    href="https://instagram.com" 
+                    href="https://www.instagram.com/samael_onela?igsh=dWE3ZGw0bDc3a25u" 
                     target="_blank" 
                     rel="noreferrer" 
                     className="bg-dark-accent p-3 text-gray-300 hover:text-white transition-colors"
@@ -105,15 +104,7 @@ const Contact = () => {
                   >
                     <Instagram size={20} />
                   </a>
-                  <a 
-                    href="https://facebook.com" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="bg-dark-accent p-3 text-gray-300 hover:text-white transition-colors"
-                    aria-label="Facebook"
-                  >
-                    <Facebook size={20} />
-                  </a>
+                  
                 </div>
               </div>
             </div>
