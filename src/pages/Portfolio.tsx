@@ -7,8 +7,6 @@ import AnimatedSection from '../components/AnimatedSection';
 import CategoryFilter from '../components/CategoryFilter';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
-import portrait from '@/assets/portrait.jpg'
-import ducasse from '@/assets/ducasse.jpg'
 
 
 // Register ScrollTrigger
@@ -28,7 +26,7 @@ const portfolioData: PortfolioItem[] = [
     id: 1,
     title: "Mountain Portrait",
     category: "Portrait",
-    image: portrait,
+    image: "hello",
     aspectRatio: "portrait"
   },
   {
@@ -44,7 +42,7 @@ const portfolioData: PortfolioItem[] = [
     id: 3,
     title: "Fine Dining",
     category: "Restaurant",
-    image: ducasse,
+    image: "helo",
     aspectRatio: "landscape"
   },
   {

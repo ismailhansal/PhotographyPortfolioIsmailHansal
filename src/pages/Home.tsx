@@ -4,12 +4,11 @@ import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import gsap from 'gsap';
-import cabestan from '@/assets/cabestan.jpg'
-import ciel from '@/assets/ciel.jpg'
-import ducasse from '@/assets/ducasse.jpg'
-import immo from '@/assets/immo.jpg'
-import portrait from '@/assets/portrait.jpg'
-import steak from '@/assets/steak.jpg'
+import cabestan from '@/assets/cabestan.webp'
+import ciel from '@/assets/ciel.webp'
+import ducasse from '@/assets/ducasse.webp'
+import immo from '@/assets/immo.webp'
+import steak from '@/assets/steak.webp'
 
 
 const heroImages = [
