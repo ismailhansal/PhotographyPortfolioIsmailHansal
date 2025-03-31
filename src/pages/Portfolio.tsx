@@ -158,12 +158,12 @@ const Portfolio = () => {
           onSelectCategory={setActiveCategory} 
         />
         
-        {/* Clean Masonry Layout */}
+        {/* Clean Grid Layout with Improved Animation */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-[200px]">
           {filteredItems.map((item, index) => (
             <div 
               key={item.id} 
-              className={`overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:z-10 ${
+              className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 ${
                 item.aspectRatio === 'portrait' ? 'masonry-item-tall' : ''
               } ${
                 item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''
@@ -176,7 +176,7 @@ const Portfolio = () => {
                 <img 
                   src={item.image} 
                   alt={item.title}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
             </div>
@@ -184,7 +184,7 @@ const Portfolio = () => {
         </div>
       </div>
       
-      {/* Full-screen Carousel Viewer with Improved Arrow Visibility */}
+      {/* Improved Full-screen Carousel Viewer with Better Arrow Visibility */}
       {viewerOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
           <button 
@@ -203,16 +203,16 @@ const Portfolio = () => {
                     <img 
                       src={item.image} 
                       alt={item.title} 
-                      className="max-h-full max-w-full object-contain"
+                      className="max-h-full max-w-full object-contain transition-all duration-300"
                     />
                   </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="bg-white/20 text-white left-4 hover:bg-white/40" size="lg">
+            <CarouselPrevious className="absolute left-4 md:left-10 bg-white/20 text-white hover:bg-white/60 hover:text-black w-12 h-12 rounded-full">
               <ArrowLeft className="h-8 w-8" />
             </CarouselPrevious>
-            <CarouselNext className="bg-white/20 text-white right-4 hover:bg-white/40" size="lg">
+            <CarouselNext className="absolute right-4 md:right-10 bg-white/20 text-white hover:bg-white/60 hover:text-black w-12 h-12 rounded-full">
               <ArrowRight className="h-8 w-8" />
             </CarouselNext>
           </Carousel>

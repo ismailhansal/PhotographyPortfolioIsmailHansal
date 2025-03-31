@@ -66,12 +66,20 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Improved Mobile Menu with Fixed Close Button */}
       <div 
         className={`fixed inset-0 bg-dark z-40 transition-transform duration-300 ease-in-out ${
           mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         } md:hidden flex flex-col items-center justify-center`}
       >
+        <button 
+          className="absolute top-6 right-6 text-white hover:text-gray-300"
+          onClick={closeMobileMenu}
+          aria-label="Close menu"
+        >
+          <X size={28} />
+        </button>
+        
         <nav className="flex flex-col items-center space-y-8 text-xl">
           <Link 
             to="/" 
