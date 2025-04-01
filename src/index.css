@@ -36,6 +36,16 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+    
+    /* Animation durations */
+    --transition-slow: 800ms;
+    --transition-medium: 500ms;
+    --transition-fast: 300ms;
+    
+    /* Easing functions */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   }
 
   * {
@@ -65,7 +75,8 @@
   }
 
   .parallax-image {
-    transition: transform 0.4s ease-out;
+    transition: transform 0.4s var(--ease-out-quart);
+    will-change: transform;
   }
   
   .parallax-container:hover .parallax-image {
@@ -78,6 +89,7 @@
   
   .nav-link::after {
     @apply content-[''] absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all duration-300 ease-in-out;
+    will-change: width;
   }
   
   .nav-link:hover::after {
@@ -90,6 +102,7 @@
   
   .button-effect::before {
     @apply content-[''] absolute top-0 left-0 w-full h-full bg-white/5 -translate-x-full transform transition-transform duration-300 ease-in-out z-[-1];
+    will-change: transform;
   }
   
   .button-effect:hover::before {
@@ -117,15 +130,16 @@
     @apply overflow-hidden;
   }
   
-  /* Fix for circular dependency - removed @apply */
   .masonry-item-tall {
     grid-row: span 2 / span 2;
   }
   
   /* Hero section animations */
   .hero-text-animation {
-    @apply opacity-0 transform translate-y-10;
-    animation: fadeUpIn 0.8s ease forwards;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUpIn 0.8s var(--ease-out-expo) forwards;
+    will-change: transform, opacity;
   }
   
   .hero-text-animation:nth-child(2) {
@@ -140,7 +154,8 @@
   .letter {
     display: inline-block;
     transform-origin: center;
-    transition: all 0.3s ease;
+    transition: all 0.3s var(--ease-out-quart);
+    will-change: transform, color;
   }
   
   .letter:hover {
@@ -175,6 +190,16 @@
     }
     to {
       clip-path: inset(0 0 0 0);
+    }
+  }
+  
+  /* Improved image shine animation */
+  @keyframes image-shine {
+    0% {
+      transform: translateX(-100%) skewX(-15deg);
+    }
+    100% {
+      transform: translateX(100%) skewX(-15deg);
     }
   }
 }

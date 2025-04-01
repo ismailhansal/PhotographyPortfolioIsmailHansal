@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
+
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
@@ -39,27 +40,56 @@ const mobileHeroImages = [
 
 const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
   // Get the appropriate images based on device
-  const [heroImages, setHeroImages] = useState(isMobile ? mobileHeroImages : desktopHeroImages);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
+  
+  // Preload images function
+  const preloadImages = useCallback((imageUrls: string[]) => {
+    let loadedCount = 0;
+    const totalImages = imageUrls.length;
+    
+    return new Promise<void>((resolve) => {
+      imageUrls.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            resolve();
+          }
+        };
+      });
+    });
+  }, []);
   
   // Update images when switching between mobile and desktop
   useEffect(() => {
-    setHeroImages(isMobile ? mobileHeroImages : desktopHeroImages);
-    setCurrentImageIndex(0); // Reset image index when switching images
-  }, [isMobile]); // Runs when isMobile changes
+    const currentImages = isMobile ? mobileHeroImages : desktopHeroImages;
+    
+    // Start preloading images right away
+    preloadImages(currentImages).then(() => {
+      setHeroImages(currentImages);
+      setImagesLoaded(true);
+      // Reset image index when switching images
+      setCurrentImageIndex(0);
+    });
+  }, [isMobile, preloadImages]); // Runs when isMobile changes
   
-  // Set up faster image cycle
+  // Set up faster image cycle only after images are loaded
   useEffect(() => {
+    if (!imagesLoaded || heroImages.length === 0) return;
+    
     const interval = setInterval(() => {
       setCurrentImageIndex(prev => (prev + 1) % heroImages.length);
     }, 1500); // Change image every 1.5 seconds for more dynamic effect
     
     return () => clearInterval(interval);
-  }, [heroImages]);
+  }, [heroImages, imagesLoaded]);
   
   // Enhanced text animations
   useEffect(() => {
@@ -71,14 +101,18 @@ const Home = () => {
       });
       
       // Create more complex animation timeline
-      const tl = gsap.timeline();
+      const tl = gsap.timeline({
+        defaults: {
+          ease: "power3.out",
+          duration: 1
+        }
+      });
       
       tl.to(textRef.current.children, { 
         y: 0, 
         opacity: 1, 
         stagger: 0.2, 
         duration: 1.2,
-        ease: "power3.out"
       })
       .fromTo(".letter", 
         { scale: 0.8, opacity: 0.5 },
@@ -92,22 +126,27 @@ const Home = () => {
         "-=0.8" // Overlap with previous animation
       );
     }
-  }, []);
+  }, [imagesLoaded]);
   
   // Enhanced hero image parallax effect
   useEffect(() => {
     if (heroRef.current) {
       const handleMouseMove = (e: MouseEvent) => {
+        if (!heroRef.current) return;
+        
         const { clientX, clientY } = e;
         const xPos = (clientX / window.innerWidth - 0.5) * 20;
         const yPos = (clientY / window.innerHeight - 0.5) * 20;
         
-        gsap.to(heroRef.current?.querySelector('.hero-image.active'), {
-          x: xPos,
-          y: yPos,
-          duration: 1,
-          ease: "power2.out"
-        });
+        const activeImage = heroRef.current.querySelector('.hero-image.active');
+        if (activeImage) {
+          gsap.to(activeImage, {
+            x: xPos,
+            y: yPos,
+            duration: 1,
+            ease: "power2.out"
+          });
+        }
       };
       
       window.addEventListener('mousemove', handleMouseMove);
@@ -132,7 +171,7 @@ const Home = () => {
       {/* Hero Section with Dynamic Images */}
       <section ref={heroRef} className="relative h-screen flex items-center justify-center">
         <div className="absolute inset-0 bg-black/70 z-0 overflow-hidden">
-          {heroImages.map((img, index) => (
+          {imagesLoaded && heroImages.map((img, index) => (
             <img
               key={index}
               src={img}
@@ -142,7 +181,7 @@ const Home = () => {
               }`}
               style={{ 
                 zIndex: index === currentImageIndex ? 1 : 0,
-                transform: 'scale(1)'
+                willChange: 'opacity, transform'
               }}
             />
           ))}

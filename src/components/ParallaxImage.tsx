@@ -9,6 +9,7 @@ interface ParallaxImageProps {
 
 const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,7 +22,7 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
       },
       {
         root: null,
-        rootMargin: '0px',
+        rootMargin: '100px', // Load earlier for smoother appearance
         threshold: 0.1,
       }
     );
@@ -38,7 +39,16 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
     };
   }, []);
 
-  // Parallax effect on mouse move
+  // Preload image
+  useEffect(() => {
+    if (isVisible) {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => setIsLoaded(true);
+    }
+  }, [isVisible, src]);
+
+  // Improved parallax effect on mouse move
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
     
@@ -48,14 +58,19 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
     
     const imageElement = ref.current.querySelector('img');
     if (imageElement) {
-      imageElement.style.transform = `translate(${x * 10}px, ${y * 10}px) scale(1.05)`;
+      // Apply smooth transform with requestAnimationFrame
+      requestAnimationFrame(() => {
+        imageElement.style.transform = `translate(${x * 8}px, ${y * 8}px) scale(1.05)`;
+      });
     }
   };
 
   const handleMouseLeave = () => {
     const imageElement = ref.current?.querySelector('img');
     if (imageElement) {
-      imageElement.style.transform = 'translate(0, 0) scale(1)';
+      requestAnimationFrame(() => {
+        imageElement.style.transform = 'translate(0, 0) scale(1)';
+      });
     }
   };
 
@@ -66,14 +81,20 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <img
-        src={src}
-        alt={alt}
-        className={`w-full h-full object-cover transition-all duration-400 ease-out ${
-          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        }`}
-        style={{ transitionDelay: '200ms' }}
-      />
+      {(isVisible) && (
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full h-full object-cover transition-all duration-500 ease-out ${
+            isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          }`}
+          style={{ 
+            transitionDelay: '100ms',
+            willChange: 'transform, opacity'
+          }}
+          onLoad={() => setIsLoaded(true)}
+        />
+      )}
     </div>
   );
 };
