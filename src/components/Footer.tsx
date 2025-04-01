@@ -32,17 +32,9 @@ const Footer = () => {
               >
                 <Instagram size={20} />
               </a>
+             
               <a 
-                href="https://facebook.com" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook size={20} />
-              </a>
-              <a 
-                href="mailto:contact@ismailhansal.com" 
+                href="mailto:ismailhansal3@gmail.com" 
                 className="text-gray-400 hover:text-white transition-colors"
                 aria-label="Email"
               >
