@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
@@ -8,26 +8,34 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
+  // Optimize scroll handler with throttling
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 50);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
+  }, []);
 
-  const closeMobileMenu = () => {
+  const closeMobileMenu = useCallback(() => {
     setMobileMenuOpen(false);
-  };
+  }, []);
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 will-change-[background-color,padding] ${
         isScrolled ? 'bg-dark/90 backdrop-blur-md py-3' : 'bg-transparent py-5'
       }`}
     >
@@ -66,49 +74,51 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Improved Mobile Menu with Fixed Close Button */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-dark z-40 flex flex-col items-center justify-center md:hidden">
-          <button 
-            className="absolute top-6 right-6 text-white hover:text-gray-300 p-2 rounded-full bg-black/20"
+      {/* Mobile Menu - Optimized with transform instead of display changes */}
+      <div 
+        className={`fixed inset-0 bg-dark z-40 flex flex-col items-center justify-center md:hidden transition-transform duration-300 ease-in-out ${
+          mobileMenuOpen ? 'transform-none' : 'transform translate-x-full'
+        }`}
+      >
+        <button 
+          className="absolute top-6 right-6 text-white hover:text-gray-300 p-2 rounded-full bg-black/20"
+          onClick={closeMobileMenu}
+          aria-label="Close menu"
+        >
+          <X size={28} />
+        </button>
+        
+        <nav className="flex flex-col items-center space-y-8 text-xl">
+          <Link 
+            to="/" 
+            className={`nav-link ${location.pathname === '/' ? 'text-white' : ''}`}
             onClick={closeMobileMenu}
-            aria-label="Close menu"
           >
-            <X size={28} />
-          </button>
-          
-          <nav className="flex flex-col items-center space-y-8 text-xl">
-            <Link 
-              to="/" 
-              className={`nav-link ${location.pathname === '/' ? 'text-white' : ''}`}
-              onClick={closeMobileMenu}
-            >
-              Home
-            </Link>
-            <Link 
-              to="/portfolio" 
-              className={`nav-link ${location.pathname === '/portfolio' ? 'text-white' : ''}`}
-              onClick={closeMobileMenu}
-            >
-              Portfolio
-            </Link>
-            <Link 
-              to="/about" 
-              className={`nav-link ${location.pathname === '/about' ? 'text-white' : ''}`}
-              onClick={closeMobileMenu}
-            >
-              About
-            </Link>
-            <Link 
-              to="/contact" 
-              className={`nav-link ${location.pathname === '/contact' ? 'text-white' : ''}`}
-              onClick={closeMobileMenu}
-            >
-              Contact
-            </Link>
-          </nav>
-        </div>
-      )}
+            Home
+          </Link>
+          <Link 
+            to="/portfolio" 
+            className={`nav-link ${location.pathname === '/portfolio' ? 'text-white' : ''}`}
+            onClick={closeMobileMenu}
+          >
+            Portfolio
+          </Link>
+          <Link 
+            to="/about" 
+            className={`nav-link ${location.pathname === '/about' ? 'text-white' : ''}`}
+            onClick={closeMobileMenu}
+          >
+            About
+          </Link>
+          <Link 
+            to="/contact" 
+            className={`nav-link ${location.pathname === '/contact' ? 'text-white' : ''}`}
+            onClick={closeMobileMenu}
+          >
+            Contact
+          </Link>
+        </nav>
+      </div>
     </header>
   );
 };

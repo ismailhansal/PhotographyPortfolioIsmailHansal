@@ -11,6 +11,8 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -22,8 +24,8 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
       },
       {
         root: null,
-        rootMargin: '100px', // Load earlier for smoother appearance
-        threshold: 0.1,
+        rootMargin: '200px', // Larger margin for earlier loading
+        threshold: 0.01, // Lower threshold for quicker detection
       }
     );
 
@@ -36,6 +38,11 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
       if (currentRef) {
         observer.unobserve(currentRef);
       }
+      
+      // Clean up any pending animation frames
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
     };
   }, []);
 
@@ -44,32 +51,43 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
     if (isVisible) {
       const img = new Image();
       img.src = src;
-      img.onload = () => setIsLoaded(true);
+      img.onload = () => {
+        setIsLoaded(true);
+      };
     }
   }, [isVisible, src]);
 
-  // Improved parallax effect on mouse move
+  // Optimized parallax effect on mouse move
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
+    if (!ref.current || !imgRef.current) return;
+    
+    // Cancel any existing animation frame
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current);
+    }
     
     const { left, top, width, height } = ref.current.getBoundingClientRect();
     const x = (e.clientX - left) / width - 0.5;
     const y = (e.clientY - top) / height - 0.5;
     
-    const imageElement = ref.current.querySelector('img');
-    if (imageElement) {
-      // Apply smooth transform with requestAnimationFrame
-      requestAnimationFrame(() => {
-        imageElement.style.transform = `translate(${x * 8}px, ${y * 8}px) scale(1.05)`;
-      });
-    }
+    // Schedule the animation in the next frame for better performance
+    frameRef.current = requestAnimationFrame(() => {
+      if (imgRef.current) {
+        imgRef.current.style.transform = `translate3d(${x * 8}px, ${y * 8}px, 0) scale(1.05)`;
+      }
+    });
   };
 
   const handleMouseLeave = () => {
-    const imageElement = ref.current?.querySelector('img');
-    if (imageElement) {
-      requestAnimationFrame(() => {
-        imageElement.style.transform = 'translate(0, 0) scale(1)';
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current);
+    }
+    
+    if (imgRef.current) {
+      frameRef.current = requestAnimationFrame(() => {
+        if (imgRef.current) {
+          imgRef.current.style.transform = 'translate3d(0, 0, 0) scale(1)';
+        }
       });
     }
   };
@@ -83,16 +101,18 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
     >
       {(isVisible) && (
         <img
+          ref={imgRef}
           src={src}
           alt={alt}
-          className={`w-full h-full object-cover transition-all duration-500 ease-out ${
+          className={`w-full h-full object-cover transition-all duration-300 ease-out ${
             isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           }`}
           style={{ 
-            transitionDelay: '100ms',
-            willChange: 'transform, opacity'
+            willChange: 'transform, opacity',
+            transform: 'translate3d(0, 0, 0)', // Default transform with hardware acceleration
           }}
           onLoad={() => setIsLoaded(true)}
+          loading="eager" // For initial viewport images
         />
       )}
     </div>

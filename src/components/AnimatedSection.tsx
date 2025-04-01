@@ -14,19 +14,18 @@ const AnimatedSection = ({ children, className = "", delay = 0 }: AnimatedSectio
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // More reliable check with a small threshold
         if (entry.isIntersecting) {
-          // Small timeout to ensure DOM is ready for animation
-          setTimeout(() => {
+          // Use requestAnimationFrame for smoother animation scheduling
+          requestAnimationFrame(() => {
             setIsVisible(true);
-          }, 50);
+          });
           observer.unobserve(entry.target);
         }
       },
       {
         root: null,
         rootMargin: '0px',
-        threshold: 0.15, // Slightly higher threshold for better timing
+        threshold: 0.1, // Lower threshold for earlier detection
       }
     );
 
@@ -42,17 +41,17 @@ const AnimatedSection = ({ children, className = "", delay = 0 }: AnimatedSectio
     };
   }, []);
 
-  // Improved animation style with better performance hints
+  // Optimize animation with hardware acceleration hints
   const animationStyle = {
     opacity: 0,
-    transform: 'translateY(20px)',
-    transition: `opacity 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) ${delay}ms, transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) ${delay}ms`,
+    transform: 'translateY(20px) translateZ(0)', // Added translateZ for hardware acceleration
+    transition: `opacity 0.5s ease-out ${delay}ms, transform 0.5s ease-out ${delay}ms`,
     willChange: 'opacity, transform',
   };
 
   const visibleStyle = {
     opacity: 1,
-    transform: 'translateY(0)',
+    transform: 'translateY(0) translateZ(0)',
   };
 
   return (
