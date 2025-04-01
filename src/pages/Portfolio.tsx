@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -7,7 +7,7 @@ import AnimatedSection from '../components/AnimatedSection';
 import CategoryFilter from '../components/CategoryFilter';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 import ducasse from '@/assets/ducasse.webp'
 import burgermobile from '@/assets/mobile/burger-mobile.webp';
@@ -87,6 +87,7 @@ interface PortfolioItem {
   title: string;
   category: string;
   image: string;
+  mobileImage?: string; // Optional mobile-specific image
   aspectRatio: 'portrait' | 'landscape' | 'square';
 }
 
@@ -465,10 +466,13 @@ const portfolioData: PortfolioItem[] = [
 const Portfolio = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category')?.toLowerCase();
+  const isMobile = useIsMobile();
+  const gridRef = useRef<HTMLDivElement>(null);
   
   const categories = useMemo(() => ["All", "Portrait", "Restaurant", "Culinaire", "Real-Estate"], []);
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>(portfolioData);
+  const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>([]);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   
   // Enhanced image viewer state
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -477,6 +481,8 @@ const Portfolio = () => {
   // Memoize category selection handler to prevent recreating on each render
   const handleCategorySelect = useCallback((category: string) => {
     setActiveCategory(category);
+    // Reset animations when changing categories
+    setImagesLoaded(false);
   }, []);
 
   useEffect(() => {
@@ -493,16 +499,18 @@ const Portfolio = () => {
     }
   }, [categoryParam, categories]);
 
-  // Memoize filtered items calculation to avoid recalculation on every render
+  // Process and filter items based on active category
   useEffect(() => {
-    // Only update filtered items when category changes
+    let items = [];
+    
     if (activeCategory === "All") {
-      setFilteredItems(portfolioData);
+      items = [...portfolioData];
     } else {
-      setFilteredItems(
-        portfolioData.filter(item => item.category === activeCategory)
-      );
+      items = portfolioData.filter(item => item.category === activeCategory);
     }
+    
+    // Set filtered items
+    setFilteredItems(items);
     
     // Update URL with category
     if (activeCategory !== "All") {
@@ -510,7 +518,75 @@ const Portfolio = () => {
     } else {
       setSearchParams({});
     }
-  }, [activeCategory, setSearchParams]);
+  }, [activeCategory, setSearchParams, portfolioData]);
+
+  // Preload images after filtering
+  useEffect(() => {
+    if (filteredItems.length === 0) return;
+    
+    setImagesLoaded(false);
+    
+    // Get all images that need to be loaded
+    const imagesToLoad = filteredItems.map(item => 
+      isMobile && item.mobileImage ? item.mobileImage : item.image
+    );
+    
+    // Preload all images
+    const imagePromises = imagesToLoad.map(src => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(src);
+        img.onerror = reject;
+      });
+    });
+    
+    // When all images are loaded, update state
+    Promise.all(imagePromises)
+      .then(() => {
+        setImagesLoaded(true);
+        if (gridRef.current) {
+          animateGrid();
+        }
+      })
+      .catch(error => {
+        console.error("Error preloading portfolio images:", error);
+        setImagesLoaded(true);
+      });
+  }, [filteredItems, isMobile]);
+
+  // Animate the grid items when they're loaded
+  const animateGrid = useCallback(() => {
+    if (!gridRef.current) return;
+    
+    const items = gridRef.current.querySelectorAll('.portfolio-item');
+    
+    // Reset any existing animations
+    gsap.set(items, { clearProps: "all" });
+    
+    // Set initial state
+    gsap.set(items, { 
+      y: 30, 
+      opacity: 0,
+      willChange: 'transform, opacity'
+    });
+    
+    // Animate items in
+    gsap.to(items, {
+      y: 0,
+      opacity: 1,
+      stagger: 0.05,
+      duration: 0.5,
+      ease: "power2.out",
+      clearProps: "willChange",
+      onComplete: () => {
+        // Clean up will-change after animation completes
+        items.forEach(item => {
+          (item as HTMLElement).style.willChange = 'auto';
+        });
+      }
+    });
+  }, []);
 
   // Open the enhanced image carousel viewer
   const openImageViewer = useCallback((index: number) => {
@@ -524,6 +600,14 @@ const Portfolio = () => {
     setViewerOpen(false);
     document.body.style.overflow = 'auto'; // Restore scrolling
   }, []);
+
+  // Get the appropriate image source based on device type
+  const getImageSource = useCallback((item: PortfolioItem) => {
+    if (isMobile && item.mobileImage) {
+      return item.mobileImage;
+    }
+    return item.image;
+  }, [isMobile]);
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4 md:px-6">
@@ -543,42 +627,26 @@ const Portfolio = () => {
         />
         
         {/* Improved Grid Layout with proper aspect ratios */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-[300px] lg:auto-rows-[350px] grid-flow-dense">
-  {filteredItems.map((item, index) => (
-    <div 
-      key={item.id} 
-      className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform 
-        ${item.aspectRatio === 'landscape' ? 'lg:col-span-2' : ''}`}
-      onClick={() => openImageViewer(index)}
-    >
-      <img 
-        src={item.image} 
-        alt={item.title} 
-        loading="lazy"
-        className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
-      />
-    </div>
-  ))}
-
-
-{filteredItems.map(item => (
-  <div key={item.id} className="portfolio-item">
-    <img
-      src={item.image}
-      alt={item.title}
-      className={`w-full ${item.aspectRatio === 'portrait' ? 'h-[8000px] md:h-[400px] object-cover' : 'h-auto'}`}
-    />
-  </div>
-))}
-
-
-
-
-
-
-
-
-</div>
+        <div 
+          ref={gridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-[300px] md:auto-rows-[350px] grid-flow-dense"
+        >
+          {imagesLoaded && filteredItems.map((item, index) => (
+            <div 
+              key={item.id} 
+              className={`portfolio-item group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10
+                ${item.aspectRatio === 'landscape' ? 'sm:col-span-2' : ''}`}
+              onClick={() => openImageViewer(index)}
+            >
+              <img 
+                src={getImageSource(item)} 
+                alt={item.title} 
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
+          ))}
+        </div>
       </div>
       
       {/* Full-screen Carousel Viewer with Better Visibility */}
@@ -596,15 +664,11 @@ const Portfolio = () => {
             <CarouselContent>
               {filteredItems.map((item, index) => (
                 <CarouselItem key={item.id}>
-                  <div className={`flex items-center justify-center h-[80vh] p-4 ${
-                    item.aspectRatio === 'landscape' ? 'max-h-screen' : ''
-                  }`}>
+                  <div className={`flex items-center justify-center h-[80vh] p-4`}>
                     <img 
-                      src={item.image} 
+                      src={getImageSource(item)} 
                       alt={item.title} 
-                      className={`max-h-full ${
-                        item.aspectRatio === 'landscape' ? 'w-auto h-auto max-w-full' : 'max-w-full'
-                      } object-contain transition-all duration-300`}
+                      className={`max-h-full max-w-full object-contain transition-all duration-300`}
                     />
                   </div>
                 </CarouselItem>

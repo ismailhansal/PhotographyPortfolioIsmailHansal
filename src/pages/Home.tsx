@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
@@ -43,77 +44,117 @@ const Home = () => {
   const textRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
-  // Get the appropriate images based on device
-  const [heroImages, setHeroImages] = useState(isMobile ? mobileHeroImages : desktopHeroImages);
+  // Use separate state for loaded images to prevent flashing
+  const [heroImages, setHeroImages] = useState<string[]>([]);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   
-  // Update images when switching between mobile and desktop
+  // Preload images when device type changes
   useEffect(() => {
-    setHeroImages(isMobile ? mobileHeroImages : desktopHeroImages);
-    setCurrentImageIndex(0); // Reset image index when switching images
-  }, [isMobile]); // Runs when isMobile changes
+    const imagesToLoad = isMobile ? mobileHeroImages : desktopHeroImages;
+    setImagesLoaded(false);
+    
+    // Create an array to hold loaded image promises
+    const imagePromises = imagesToLoad.map(src => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(src);
+        img.onerror = reject;
+      });
+    });
+    
+    // When all images are loaded, update state
+    Promise.all(imagePromises)
+      .then(() => {
+        setHeroImages(imagesToLoad);
+        setImagesLoaded(true);
+        setCurrentImageIndex(0); // Reset image index when switching images
+      })
+      .catch(error => {
+        console.error("Error preloading images:", error);
+        // Fallback to using unpreloaded images
+        setHeroImages(imagesToLoad);
+        setImagesLoaded(true);
+      });
+  }, [isMobile]); // Only run when isMobile changes
   
-  // Set up faster image cycle
+  // Set up image cycle once images are loaded
   useEffect(() => {
+    if (!imagesLoaded) return;
+    
     const interval = setInterval(() => {
       setCurrentImageIndex(prev => (prev + 1) % heroImages.length);
-    }, 1500); // Change image every 1.5 seconds for more dynamic effect
+    }, 2000); // Change image every 2 seconds
     
     return () => clearInterval(interval);
-  }, [heroImages]);
+  }, [heroImages, imagesLoaded]);
   
-  // Enhanced text animations
+  // Enhanced text animations with GSAP
   useEffect(() => {
-    if (textRef.current) {
+    if (textRef.current && textRef.current.children.length > 0) {
+      // Reset any existing animations
+      gsap.set(textRef.current.children, { clearProps: "all" });
+      gsap.set(".letter", { clearProps: "all" });
+      
       // Initial state - all elements hidden
       gsap.set(textRef.current.children, { 
-        y: 100, 
-        opacity: 0 
+        y: 50, 
+        opacity: 0,
+        willChange: 'transform, opacity'
       });
       
-      // Create more complex animation timeline
-      const tl = gsap.timeline();
+      // Create smoother animation timeline
+      const tl = gsap.timeline({
+        defaults: {
+          ease: "power3.out"
+        }
+      });
       
       tl.to(textRef.current.children, { 
         y: 0, 
         opacity: 1, 
-        stagger: 0.2, 
-        duration: 1.2,
-        ease: "power3.out"
+        stagger: 0.15, 
+        duration: 0.8,
+        clearProps: "willChange"
       })
       .fromTo(".letter", 
-        { scale: 0.8, opacity: 0.5 },
+        { scale: 0.9, opacity: 0.7, willChange: 'transform, opacity' },
         { 
           scale: 1, 
           opacity: 1, 
-          stagger: 0.03, 
-          duration: 0.6,
-          ease: "back.out(1.7)"
+          stagger: 0.02, 
+          duration: 0.4,
+          clearProps: "willChange",
+          ease: "back.out(1.5)"
         }, 
-        "-=0.8" // Overlap with previous animation
+        "-=0.6" // Start slightly before previous animation completes
       );
     }
-  }, []);
+  }, [imagesLoaded]); // Run when images are loaded
   
   // Enhanced hero image parallax effect
   useEffect(() => {
-    if (heroRef.current) {
+    if (heroRef.current && imagesLoaded) {
       const handleMouseMove = (e: MouseEvent) => {
         const { clientX, clientY } = e;
         const xPos = (clientX / window.innerWidth - 0.5) * 20;
         const yPos = (clientY / window.innerHeight - 0.5) * 20;
         
-        gsap.to(heroRef.current?.querySelector('.hero-image.active'), {
-          x: xPos,
-          y: yPos,
-          duration: 1,
-          ease: "power2.out"
-        });
+        const activeImage = heroRef.current?.querySelector('.hero-image.active');
+        if (activeImage) {
+          gsap.to(activeImage, {
+            x: xPos,
+            y: yPos,
+            duration: 1.2,
+            ease: "power2.out"
+          });
+        }
       };
       
       window.addEventListener('mousemove', handleMouseMove);
       return () => window.removeEventListener('mousemove', handleMouseMove);
     }
-  }, [currentImageIndex]);
+  }, [currentImageIndex, imagesLoaded]);
   
   // Scroll to top when component mounts
   useEffect(() => {
@@ -132,7 +173,7 @@ const Home = () => {
       {/* Hero Section with Dynamic Images */}
       <section ref={heroRef} className="relative h-screen flex items-center justify-center">
         <div className="absolute inset-0 bg-black/70 z-0 overflow-hidden">
-          {heroImages.map((img, index) => (
+          {imagesLoaded && heroImages.map((img, index) => (
             <img
               key={index}
               src={img}
@@ -142,7 +183,7 @@ const Home = () => {
               }`}
               style={{ 
                 zIndex: index === currentImageIndex ? 1 : 0,
-                transform: 'scale(1)'
+                willChange: 'transform, opacity'
               }}
             />
           ))}
@@ -184,14 +225,14 @@ const Home = () => {
 
       {/* About Me Preview - Now positioned right after Hero */}
       <section id="about-section" className="py-20 px-4 md:px-6 bg-dark">
-        <div className=" max-w-[95%]  mx-auto">
+        <div className="max-w-[95%] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <AnimatedSection>
               <img 
                 src={meabout} 
                 alt="Ismail Hansal" 
                 className="w-full h-[350px] md:h-[900px] object-cover object-top" 
-                />
+              />
             </AnimatedSection>
             
             <AnimatedSection delay={200}>
