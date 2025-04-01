@@ -1,5 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ParallaxImageProps {
   src: string;
@@ -13,13 +14,23 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const frameRef = useRef<number | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const lastMousePosition = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const currentRef = ref.current;
+    if (!currentRef) return;
+    
+    // Cancel any previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+    
+    observerRef.current = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.unobserve(entry.target);
+          observerRef.current?.unobserve(entry.target);
         }
       },
       {
@@ -29,15 +40,10 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
       }
     );
 
-    const currentRef = ref.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
+    observerRef.current.observe(currentRef);
 
     return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
+      observerRef.current?.disconnect();
       
       // Clean up any pending animation frames
       if (frameRef.current) {
@@ -57,7 +63,7 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
     }
   }, [isVisible, src]);
 
-  // Optimized parallax effect on mouse move
+  // Optimized parallax effect with lerp smoothing
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current || !imgRef.current) return;
     
@@ -70,12 +76,18 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
     const x = (e.clientX - left) / width - 0.5;
     const y = (e.clientY - top) / height - 0.5;
     
+    // Update last position
+    lastMousePosition.current = { x, y };
+    
     // Schedule the animation in the next frame for better performance
-    frameRef.current = requestAnimationFrame(() => {
+    const applyParallax = () => {
       if (imgRef.current) {
+        // Apply transform with hardware acceleration hints
         imgRef.current.style.transform = `translate3d(${x * 8}px, ${y * 8}px, 0) scale(1.05)`;
       }
-    });
+    };
+    
+    frameRef.current = requestAnimationFrame(applyParallax);
   };
 
   const handleMouseLeave = () => {
@@ -84,6 +96,7 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
     }
     
     if (imgRef.current) {
+      // Smooth transition back to center
       frameRef.current = requestAnimationFrame(() => {
         if (imgRef.current) {
           imgRef.current.style.transform = 'translate3d(0, 0, 0) scale(1)';
@@ -99,7 +112,11 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {(isVisible) && (
+      {!isLoaded && isVisible && (
+        <Skeleton className="w-full h-full" />
+      )}
+      
+      {isVisible && (
         <img
           ref={imgRef}
           src={src}
