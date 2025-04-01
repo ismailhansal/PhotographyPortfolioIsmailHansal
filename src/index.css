@@ -65,8 +65,7 @@
   }
 
   .parallax-image {
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); /* Smoother easing function */
-    will-change: transform; /* Optimize for animations */
+    transition: transform 0.4s ease-out;
   }
   
   .parallax-container:hover .parallax-image {
@@ -79,7 +78,6 @@
   
   .nav-link::after {
     @apply content-[''] absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all duration-300 ease-in-out;
-    will-change: width; /* Optimize for width animation */
   }
   
   .nav-link:hover::after {
@@ -92,7 +90,6 @@
   
   .button-effect::before {
     @apply content-[''] absolute top-0 left-0 w-full h-full bg-white/5 -translate-x-full transform transition-transform duration-300 ease-in-out z-[-1];
-    will-change: transform; /* Optimize for transform animation */
   }
   
   .button-effect:hover::before {
@@ -105,7 +102,6 @@
   
   .card-shine::before {
     @apply content-[''] absolute top-0 left-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-image-shine;
-    will-change: transform; /* Optimize for transform animation */
   }
 
   .image-grid {
@@ -128,10 +124,8 @@
   
   /* Hero section animations */
   .hero-text-animation {
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fadeUpIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; /* Smoother easing */
-    will-change: transform, opacity; /* Optimize for animations */
+    @apply opacity-0 transform translate-y-10;
+    animation: fadeUpIn 0.8s ease forwards;
   }
   
   .hero-text-animation:nth-child(2) {
@@ -146,52 +140,13 @@
   .letter {
     display: inline-block;
     transform-origin: center;
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); /* Smoother easing */
-    will-change: transform, color; /* Optimize for animations */
+    transition: all 0.3s ease;
   }
   
   .letter:hover {
     transform: scale(1.3);
     color: #fff;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  }
-  
-  /* Fade-in animation for images */
-  .fade-in-image {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-  }
-  
-  .fade-in-image.loaded {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  /* New portfolio grid with improved rendering */
-  .portfolio-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-    opacity: 0;
-    transition: opacity 0.6s ease-out;
-  }
-  
-  .portfolio-grid.loaded {
-    opacity: 1;
-  }
-  
-  .portfolio-item {
-    overflow: hidden;
-    backface-visibility: hidden; /* Prevent flickering */
-  }
-  
-  .portfolio-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: translateZ(0); /* Force GPU acceleration */
-    backface-visibility: hidden; /* Prevent flickering */
   }
 }
 
@@ -221,19 +176,5 @@
     to {
       clip-path: inset(0 0 0 0);
     }
-  }
-  
-  /* Smoother image shine animation */
-  @keyframes image-shine {
-    from {
-      transform: translateX(-100%) skewX(-15deg);
-    }
-    to {
-      transform: translateX(100%) skewX(-15deg);
-    }
-  }
-  
-  .animate-image-shine {
-    animation: image-shine 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
   }
 }

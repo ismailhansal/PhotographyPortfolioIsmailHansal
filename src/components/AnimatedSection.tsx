@@ -15,10 +15,7 @@ const AnimatedSection = ({ children, className = "", delay = 0 }: AnimatedSectio
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Set a small timeout to ensure DOM has updated before applying animations
-          setTimeout(() => {
-            setIsVisible(true);
-          }, 50);
+          setIsVisible(true);
           observer.unobserve(entry.target);
         }
       },
@@ -41,16 +38,22 @@ const AnimatedSection = ({ children, className = "", delay = 0 }: AnimatedSectio
     };
   }, []);
 
+  const animationStyle = {
+    opacity: 0,
+    transform: 'translateY(20px)',
+    transition: `opacity 0.8s ease-out ${delay}ms, transform 0.8s ease-out ${delay}ms`,
+  };
+
+  const visibleStyle = {
+    opacity: 1,
+    transform: 'translateY(0)',
+  };
+
   return (
     <div
       ref={ref}
       className={className}
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-        transition: `opacity 0.8s ease-out ${delay}ms, transform 0.8s ease-out ${delay}ms`,
-        willChange: 'opacity, transform'
-      }}
+      style={isVisible ? { ...animationStyle, ...visibleStyle } : animationStyle}
     >
       {children}
     </div>
