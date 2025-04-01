@@ -31,11 +31,14 @@ import image29 from '@/assets/tout/culinaire/Image29.webp'
 import image30 from '@/assets/tout/culinaire/Image30.webp'
 
 
+//Restaurant
 import image03 from '@/assets/tout/restaurant/Image03.webp'
 import image04 from '@/assets/tout/restaurant/Image04.webp'
 import image24 from '@/assets/tout/restaurant/Image24.webp'
 import image25 from '@/assets/tout/restaurant/Image25.webp'
 
+
+//Portrait
 
 import image01 from '@/assets/tout/portrait/Image01.webp'
 import image02 from '@/assets/tout/portrait/Image02.webp'
@@ -48,6 +51,8 @@ import image36 from '@/assets/tout/portrait/Image36.webp'
 import image37 from '@/assets/tout/portrait/Image37.webp'
 import image38 from '@/assets/tout/portrait/Image38.webp'
 import image39 from '@/assets/tout/portrait/Image39.webp'
+
+//Real-estate
 
 import image12 from '@/assets/tout/real-estate/Image12.webp'
 import image13 from '@/assets/tout/real-estate/Image13.webp'
@@ -62,6 +67,19 @@ import image21 from '@/assets/tout/real-estate/Image22.webp'
 import image22 from '@/assets/tout/real-estate/Image23.webp'
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+// Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
 interface PortfolioItem {
@@ -73,6 +91,11 @@ interface PortfolioItem {
 }
 
 const portfolioData: PortfolioItem[] = [
+  
+  
+  // Restaurant
+
+
   {
     id: 42,
     title: "Culinary Art",
@@ -80,6 +103,10 @@ const portfolioData: PortfolioItem[] = [
     image: ducasse,
     aspectRatio: "landscape"
   },
+
+
+
+
   {
     id: 45,
     title: "Culinary Art",
@@ -87,6 +114,7 @@ const portfolioData: PortfolioItem[] = [
     image: image03,
     aspectRatio: "landscape"
   },
+
   {
     id: 50,
     title: "Culinary Art",
@@ -94,6 +122,10 @@ const portfolioData: PortfolioItem[] = [
     image: image04,
     aspectRatio: "landscape"
   },
+
+
+
+
   {
     id: 3,
     title: "Fine Dining",
@@ -101,13 +133,17 @@ const portfolioData: PortfolioItem[] = [
     image: ducassemobile,
     aspectRatio: "portrait"
   },
+
+
   {
     id: 51,
     title: "Culinary Art",
     category: "Restaurant",
-    image: image24,
+    image: image24
+    ,
     aspectRatio: "portrait"
   },
+  
   {
     id: 52,
     title: "Culinary Art",
@@ -115,6 +151,13 @@ const portfolioData: PortfolioItem[] = [
     image: image25,
     aspectRatio: "portrait"
   },
+
+
+
+  
+ 
+  
+  // Culinaire
   {
     id: 5,
     title: "Morning Coffee",
@@ -129,6 +172,8 @@ const portfolioData: PortfolioItem[] = [
     image: pizzamobile,
     aspectRatio: "portrait"
   },
+
+
   {
     id: 7,
     title: "Culinaire Image 05",
@@ -213,90 +258,112 @@ const portfolioData: PortfolioItem[] = [
     image: image30,
     aspectRatio: "portrait"
   },
-  {
-    id: 80,
-    title: "Mountain Portrait",
-    category: "Portrait",
-    image: packomobile,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 19,
-    title: "Portrait Image 01",
-    category: "Portrait",
-    image: image01,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 20,
-    title: "Portrait Image 02",
-    category: "Portrait",
-    image: image02,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 21,
-    title: "Portrait Image 31",
-    category: "Portrait",
-    image: image31,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 22,
-    title: "Portrait Image 32",
-    category: "Portrait",
-    image: image32,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 23,
-    title: "Portrait Image 33",
-    category: "Portrait",
-    image: image33,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 24,
-    title: "Portrait Image 34",
-    category: "Portrait",
-    image: image34,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 25,
-    title: "Portrait Image 35",
-    category: "Portrait",
-    image: image35,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 26,
-    title: "Portrait Image 36",
-    category: "Portrait",
-    image: image36,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 27,
-    title: "Portrait Image 37",
-    category: "Portrait",
-    image: image37,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 28,
-    title: "Portrait Image 38",
-    category: "Portrait",
-    image: image38,
-    aspectRatio: "portrait"
-  },
-  {
-    id: 29,
-    title: "Portrait Image 39",
-    category: "Portrait",
-    image: image39,
-    aspectRatio: "portrait"
-  },
+
+
+
+
+
+// Portrait
+  
+  
+{
+  id: 80,
+  title: "Mountain Portrait",
+  category: "Portrait",
+  image: packomobile,
+  aspectRatio: "portrait"
+},
+
+
+ {
+  id: 19,
+  title: "Portrait Image 01",
+  category: "Portrait",
+  image: image01,
+  aspectRatio: "portrait"
+},
+{
+  id: 20,
+  title: "Portrait Image 02",
+  category: "Portrait",
+  image: image02,
+  aspectRatio: "portrait"
+},
+{
+  id: 21,
+  title: "Portrait Image 31",
+  category: "Portrait",
+  image: image31,
+  aspectRatio: "portrait"
+},
+{
+  id: 22,
+  title: "Portrait Image 32",
+  category: "Portrait",
+  image: image32,
+  aspectRatio: "portrait"
+},
+{
+  id: 23,
+  title: "Portrait Image 33",
+  category: "Portrait",
+  image: image33,
+  aspectRatio: "portrait"
+},
+{
+  id: 24,
+  title: "Portrait Image 34",
+  category: "Portrait",
+  image: image34,
+  aspectRatio: "portrait"
+},
+{
+  id: 25,
+  title: "Portrait Image 35",
+  category: "Portrait",
+  image: image35,
+  aspectRatio: "portrait"
+},
+{
+  id: 26,
+  title: "Portrait Image 36",
+  category: "Portrait",
+  image: image36,
+  aspectRatio: "portrait"
+},
+{
+  id: 27,
+  title: "Portrait Image 37",
+  category: "Portrait",
+  image: image37,
+  aspectRatio: "portrait"
+},
+{
+  id: 28,
+  title: "Portrait Image 38",
+  category: "Portrait",
+  image: image38,
+  aspectRatio: "portrait"
+},
+{
+  id: 29,
+  title: "Portrait Image 39",
+  category: "Portrait",
+  image: image39,
+  aspectRatio: "portrait"
+},
+
+
+
+
+
+
+
+
+
+
+  
+  // Real-Estate
   {
     id: 81,
     title: "Mountain Range",
@@ -304,6 +371,9 @@ const portfolioData: PortfolioItem[] = [
     image: immomobile,
     aspectRatio: "portrait"
   },
+  
+
+
   {
     id: 30,
     title: "Real Estate Image 12",
@@ -380,8 +450,17 @@ const portfolioData: PortfolioItem[] = [
     category: "Real-Estate",
     image: image22,
     aspectRatio: "portrait"
-  }
+  },
+
+
+
 ];
+
+
+
+
+
+
 
 const Portfolio = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -392,16 +471,19 @@ const Portfolio = () => {
   const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>(portfolioData);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Enhanced image viewer state
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
+  // Memoize category selection handler to prevent recreating on each render
   const handleCategorySelect = useCallback((category: string) => {
     setActiveCategory(category);
     setIsLoading(true);
     
+    // Simulate loading time for category change
     setTimeout(() => {
       setIsLoading(false);
-    }, 800);
+    }, 300);
   }, []);
 
   useEffect(() => {
@@ -417,12 +499,15 @@ const Portfolio = () => {
       }
     }
     
+    // Simulate initial loading 
     setTimeout(() => {
       setIsLoading(false);
-    }, 1200);
+    }, 500);
   }, [categoryParam, categories]);
 
+  // Memoize filtered items calculation to avoid recalculation on every render
   useEffect(() => {
+    // Only update filtered items when category changes
     if (activeCategory === "All") {
       setFilteredItems(portfolioData);
     } else {
@@ -431,6 +516,7 @@ const Portfolio = () => {
       );
     }
     
+    // Update URL with category
     if (activeCategory !== "All") {
       setSearchParams({ category: activeCategory.toLowerCase() });
     } else {
@@ -438,15 +524,17 @@ const Portfolio = () => {
     }
   }, [activeCategory, setSearchParams]);
 
+  // Open the enhanced image carousel viewer
   const openImageViewer = useCallback((index: number) => {
     setSelectedImageIndex(index);
     setViewerOpen(true);
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when viewer is open
   }, []);
-
+  
+  // Close the enhanced image carousel viewer
   const closeImageViewer = useCallback(() => {
     setViewerOpen(false);
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = 'auto'; // Restore scrolling
   }, []);
 
   return (
@@ -466,25 +554,32 @@ const Portfolio = () => {
           onSelectCategory={handleCategorySelect} 
         />
         
-        <SkeletonGallery count={12} isLoading={isLoading}>
-          {filteredItems.map((item, index) => (
-            <div 
-              key={item.id} 
-              className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform 
-                ${item.aspectRatio === 'landscape' ? 'lg:col-span-2' : ''}`}
-              onClick={() => openImageViewer(index)}
-            >
-              <img 
-                src={item.image} 
-                alt={item.title} 
-                loading="lazy"
-                className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
-              />
-            </div>
-          ))}
-        </SkeletonGallery>
+        {/* Show skeleton while loading */}
+        {isLoading ? (
+          <SkeletonGallery count={12} />
+        ) : (
+          /* Improved Grid Layout with proper aspect ratios */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-[300px] lg:auto-rows-[350px] grid-flow-dense">
+            {filteredItems.map((item, index) => (
+              <div 
+                key={item.id} 
+                className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform 
+                  ${item.aspectRatio === 'landscape' ? 'lg:col-span-2' : ''}`}
+                onClick={() => openImageViewer(index)}
+              >
+                <img 
+                  src={item.image} 
+                  alt={item.title} 
+                  loading="lazy"
+                  className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       
+      {/* Full-screen Carousel Viewer with Better Visibility */}
       {viewerOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
           <button 
