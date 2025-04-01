@@ -5,61 +5,47 @@ interface AnimatedSectionProps {
   children: ReactNode;
   className?: string;
   delay?: number;
-  threshold?: number;
 }
 
-const AnimatedSection = ({ 
-  children, 
-  className = "", 
-  delay = 0,
-  threshold = 0.1
-}: AnimatedSectionProps) => {
+const AnimatedSection = ({ children, className = "", delay = 0 }: AnimatedSectionProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    const currentRef = ref.current;
-    if (!currentRef) return;
-    
-    // Cancel any previous observer
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-    
-    // Create the observer with performance optimizations
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
         if (entry.isIntersecting) {
           // Use requestAnimationFrame for smoother animation scheduling
           requestAnimationFrame(() => {
             setIsVisible(true);
           });
-          
-          // Unobserve after animation is triggered to save resources
-          observerRef.current?.unobserve(entry.target);
+          observer.unobserve(entry.target);
         }
       },
       {
         root: null,
-        rootMargin: '20px',
-        threshold: threshold, // Lower threshold for earlier detection
+        rootMargin: '0px',
+        threshold: 0.1, // Lower threshold for earlier detection
       }
     );
 
-    observerRef.current.observe(currentRef);
+    const currentRef = ref.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
 
     return () => {
-      observerRef.current?.disconnect();
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
     };
-  }, [threshold]);
+  }, []);
 
   // Optimize animation with hardware acceleration hints
   const animationStyle = {
     opacity: 0,
     transform: 'translateY(20px) translateZ(0)', // Added translateZ for hardware acceleration
-    transition: `opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+    transition: `opacity 0.5s ease-out ${delay}ms, transform 0.5s ease-out ${delay}ms`,
     willChange: 'opacity, transform',
   };
 

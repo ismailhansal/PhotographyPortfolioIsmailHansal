@@ -1,5 +1,5 @@
 
-import { useEffect, lazy, Suspense, useState } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,8 +8,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PopupButton from '@/components/PopupButton';
-import Preloader from '@/components/Preloader';
-import { useScrollOptimizer } from './lib/useScrollOptimizer';
 import gsap from "gsap";
 
 // Lazy load the pages for better performance
@@ -37,11 +35,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Use scroll optimizer
-  useScrollOptimizer();
-  
   useEffect(() => {
     // Optimize GSAP config for better performance
     gsap.config({
@@ -63,23 +56,12 @@ const App = () => {
       gsap.killTweensOf(window);
     };
   }, []);
-  
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-    // Force a GPU accelerated layer for smoother page transitions
-    document.documentElement.style.transform = 'translateZ(0)';
-  };
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        
-        {isLoading && (
-          <Preloader onLoadingComplete={handleLoadingComplete} />
-        )}
-        
         <BrowserRouter>
           <div className="flex flex-col min-h-screen">
             <Navbar />
