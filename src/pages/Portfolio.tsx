@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import gsap from 'gsap';
@@ -601,17 +602,17 @@ const Portfolio = () => {
               animate="show"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-[300px] lg:auto-rows-[350px] grid-flow-dense"
             >
-              {filteredItems.map((item, index) => (
+              {filteredItems.map((portfolioItem, index) => (
                 <motion.div 
-                  key={item.id} 
+                  key={portfolioItem.id} 
                   variants={item}
                   className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform 
-                    ${item.aspectRatio === 'landscape' ? 'lg:col-span-2' : ''}`}
+                    ${portfolioItem.aspectRatio === 'landscape' ? 'lg:col-span-2' : ''}`}
                   onClick={() => openImageViewer(index)}
                 >
                   <img 
-                    src={item.image} 
-                    alt={item.title} 
+                    src={portfolioItem.image} 
+                    alt={portfolioItem.title} 
                     loading="lazy"
                     className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
                   />
