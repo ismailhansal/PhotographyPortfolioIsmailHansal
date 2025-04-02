@@ -1,5 +1,5 @@
 
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PopupButton from '@/components/PopupButton';
+import Preloader from '@/components/Preloader';
 import gsap from "gsap";
 
 // Lazy load the pages for better performance
@@ -35,6 +36,8 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const [appReady, setAppReady] = useState(false);
+
   useEffect(() => {
     // Optimize GSAP config for better performance
     gsap.config({
@@ -52,6 +55,11 @@ const App = () => {
       });
     }
     
+    // Simulate app initialization delay
+    setTimeout(() => {
+      setAppReady(true);
+    }, 1500);
+    
     return () => {
       gsap.killTweensOf(window);
     };
@@ -62,6 +70,10 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        
+        {/* Show preloader until app is ready */}
+        <Preloader />
+        
         <BrowserRouter>
           <div className="flex flex-col min-h-screen">
             <Navbar />

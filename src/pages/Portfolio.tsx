@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import gsap from 'gsap';
@@ -8,6 +7,8 @@ import CategoryFilter from '../components/CategoryFilter';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import SkeletonGallery from '@/components/SkeletonGallery';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import ducasse from '@/assets/ducasse.webp'
 import burgermobile from '@/assets/mobile/burger-mobile.webp';
@@ -473,10 +474,15 @@ const Portfolio = () => {
   // Enhanced image viewer state
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  
+  // Loading state for skeleton
+  const [loading, setLoading] = useState(true);
 
   // Memoize category selection handler to prevent recreating on each render
   const handleCategorySelect = useCallback((category: string) => {
     setActiveCategory(category);
+    // Show skeleton when changing categories
+    setLoading(true);
   }, []);
 
   useEffect(() => {
@@ -491,6 +497,13 @@ const Portfolio = () => {
         setActiveCategory(matchedCategory);
       }
     }
+    
+    // Simulate loading time for images
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200); // Long enough to be noticeable but not annoying
+    
+    return () => clearTimeout(timer);
   }, [categoryParam, categories]);
 
   // Memoize filtered items calculation to avoid recalculation on every render
@@ -510,6 +523,16 @@ const Portfolio = () => {
     } else {
       setSearchParams({});
     }
+    
+    // Show skeleton when changing categories
+    setLoading(true);
+    
+    // Hide skeleton after delay
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    
+    return () => clearTimeout(timer);
   }, [activeCategory, setSearchParams]);
 
   // Open the enhanced image carousel viewer
@@ -524,6 +547,22 @@ const Portfolio = () => {
     setViewerOpen(false);
     document.body.style.overflow = 'auto'; // Restore scrolling
   }, []);
+
+  // Animation variants for the grid
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
 
   return (
     <main className="min-h-screen pt-24 pb-20 px-4 md:px-6">
@@ -542,43 +581,45 @@ const Portfolio = () => {
           onSelectCategory={handleCategorySelect} 
         />
         
-        {/* Improved Grid Layout with proper aspect ratios */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-[300px] lg:auto-rows-[350px] grid-flow-dense">
-  {filteredItems.map((item, index) => (
-    <div 
-      key={item.id} 
-      className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform 
-        ${item.aspectRatio === 'landscape' ? 'lg:col-span-2' : ''}`}
-      onClick={() => openImageViewer(index)}
-    >
-      <img 
-        src={item.image} 
-        alt={item.title} 
-        loading="lazy"
-        className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
-      />
-    </div>
-  ))}
-
-
-{filteredItems.map(item => (
-  <div key={item.id} className="portfolio-item">
-    <img
-      src={item.image}
-      alt={item.title}
-      className={`w-full ${item.aspectRatio === 'portrait' ? 'h-[8000px] md:h-[400px] object-cover' : 'h-auto'}`}
-    />
-  </div>
-))}
-
-
-
-
-
-
-
-
-</div>
+        {/* Conditional rendering of skeleton or actual content */}
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <SkeletonGallery itemCount={16} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="content"
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 auto-rows-[300px] lg:auto-rows-[350px] grid-flow-dense"
+            >
+              {filteredItems.map((item, index) => (
+                <motion.div 
+                  key={item.id} 
+                  variants={item}
+                  className={`group overflow-hidden cursor-pointer transition-all duration-300 hover:z-10 will-change-transform 
+                    ${item.aspectRatio === 'landscape' ? 'lg:col-span-2' : ''}`}
+                  onClick={() => openImageViewer(index)}
+                >
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    loading="lazy"
+                    className="h-full w-full object-cover transform transition-transform duration-500 group-hover:scale-110 will-change-transform"
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
       {/* Full-screen Carousel Viewer with Better Visibility */}
