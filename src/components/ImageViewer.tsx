@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface ImageViewerProps {
@@ -12,6 +12,15 @@ interface ImageViewerProps {
 const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageViewerProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const viewerRef = useRef<HTMLDivElement>(null);
+  
+  // Memoize handlers for better performance
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  }, [images.length]);
+  
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  }, [images.length]);
   
   // Handle key presses for navigation and closing
   useEffect(() => {
@@ -34,7 +43,7 @@ const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageViewerProps
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'auto'; // Re-enable scrolling
     };
-  }, [isOpen, currentIndex]);
+  }, [isOpen, handleNext, handlePrev, onClose]);
   
   // Reset to initial index when viewer is opened
   useEffect(() => {
@@ -43,15 +52,23 @@ const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageViewerProps
     }
   }, [isOpen, initialIndex]);
   
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
-  
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
-  
+  // Early return for performance
   if (!isOpen) return null;
+  
+  // Preload adjacent images
+  const preloadImages = () => {
+    const nextIndex = (currentIndex + 1) % images.length;
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    
+    const preloadNext = new Image();
+    preloadNext.src = images[nextIndex].src;
+    
+    const preloadPrev = new Image();
+    preloadPrev.src = images[prevIndex].src;
+  };
+  
+  // Call preload on render
+  preloadImages();
   
   return (
     <div 
@@ -76,9 +93,11 @@ const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageViewerProps
         
         <div className="w-full h-full flex items-center justify-center p-4 sm:p-10">
           <img
+            key={images[currentIndex].id} // Key for efficient re-rendering
             src={images[currentIndex].src}
             alt={images[currentIndex].alt}
             className="max-h-full max-w-full object-contain animate-fade-in"
+            style={{ willChange: 'transform' }}
           />
         </div>
         

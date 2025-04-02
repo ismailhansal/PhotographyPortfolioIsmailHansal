@@ -1,5 +1,5 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 interface ParallaxImageProps {
   src: string;
@@ -13,15 +13,17 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const frameRef = useRef<number | null>(null);
+  
+  // Memoize the observer callback
+  const observerCallback = useCallback((entries: IntersectionObserverEntry[]) => {
+    if (entries[0].isIntersecting) {
+      setIsVisible(true);
+    }
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
+      observerCallback,
       {
         root: null,
         rootMargin: '200px', // Larger margin for earlier loading
@@ -44,53 +46,64 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, []);
+  }, [observerCallback]);
 
-  // Preload image
+  // Optimized image preloading
   useEffect(() => {
-    if (isVisible) {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        setIsLoaded(true);
-      };
-    }
+    if (!isVisible) return;
+    
+    // Use Image constructor for better control
+    const img = new Image();
+    // Add image decode for smoother rendering
+    img.src = src;
+    img.decode()
+      .then(() => setIsLoaded(true))
+      .catch(() => {
+        // Fallback if decode not supported
+        img.onload = () => setIsLoaded(true);
+      });
+      
+    return () => {
+      img.onload = null;
+    };
   }, [isVisible, src]);
 
-  // Optimized parallax effect on mouse move
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Optimized, throttled mousemove handler using RAF
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current || !imgRef.current) return;
     
-    // Cancel any existing animation frame
+    // Cancel any existing animation frame to prevent queueing
     if (frameRef.current) {
       cancelAnimationFrame(frameRef.current);
     }
     
-    const { left, top, width, height } = ref.current.getBoundingClientRect();
-    const x = (e.clientX - left) / width - 0.5;
-    const y = (e.clientY - top) / height - 0.5;
-    
-    // Schedule the animation in the next frame for better performance
+    // Schedule the transform on the next animation frame
     frameRef.current = requestAnimationFrame(() => {
-      if (imgRef.current) {
-        imgRef.current.style.transform = `translate3d(${x * 8}px, ${y * 8}px, 0) scale(1.05)`;
-      }
+      if (!ref.current || !imgRef.current) return;
+      
+      const { left, top, width, height } = ref.current.getBoundingClientRect();
+      const x = (e.clientX - left) / width - 0.5;
+      const y = (e.clientY - top) / height - 0.5;
+      
+      imgRef.current.style.transform = `translate3d(${x * 8}px, ${y * 8}px, 0) scale(1.05)`;
     });
-  };
+  }, []);
 
-  const handleMouseLeave = () => {
+  // Optimized mouse leave handler
+  const handleMouseLeave = useCallback(() => {
     if (frameRef.current) {
       cancelAnimationFrame(frameRef.current);
     }
     
     if (imgRef.current) {
+      // Use RAF for smoother reset animation
       frameRef.current = requestAnimationFrame(() => {
         if (imgRef.current) {
           imgRef.current.style.transform = 'translate3d(0, 0, 0) scale(1)';
         }
       });
     }
-  };
+  }, []);
 
   return (
     <div 
@@ -99,11 +112,12 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {(isVisible) && (
+      {isVisible && (
         <img
           ref={imgRef}
           src={src}
           alt={alt}
+          fetchPriority={className.includes('hero') ? 'high' : 'auto'}
           className={`w-full h-full object-cover transition-all duration-300 ease-out ${
             isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           }`}
@@ -112,7 +126,7 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
             transform: 'translate3d(0, 0, 0)', // Default transform with hardware acceleration
           }}
           onLoad={() => setIsLoaded(true)}
-          loading="eager" // For initial viewport images
+          loading="lazy" // Change to lazy loading for all images
         />
       )}
     </div>
