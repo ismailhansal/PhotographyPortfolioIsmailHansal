@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
+import ParallaxScrollSection from '../components/ParallaxScrollSection';
 import gsap from 'gsap';
 import { useIsMobile } from '../hooks/use-mobile';
 import cabestan from '@/assets/cabestan.webp';
@@ -43,23 +44,40 @@ const Home = () => {
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
   // Get the appropriate images based on device
   const [heroImages, setHeroImages] = useState<string[]>([]);
   
-  // Preload images function
+  // Preload images function with optimized loading
   const preloadImages = useCallback((imageUrls: string[]) => {
     let loadedCount = 0;
     const totalImages = imageUrls.length;
     
     return new Promise<void>((resolve) => {
-      imageUrls.forEach((src) => {
+      // Load first image with high priority, others with lower priority
+      imageUrls.forEach((src, index) => {
         const img = new Image();
+        
+        // Set high priority for first image, low for others
+        if (index === 0) {
+          img.fetchPriority = 'high';
+        }
+        
         img.src = src;
         img.onload = img.onerror = () => {
           loadedCount++;
+          
+          // Resolve after first image loads for faster display
+          if (loadedCount === 1) {
+            setHeroImages([imageUrls[0]]);
+            setImagesLoaded(true);
+          }
+          
+          // Then load the rest of the images
           if (loadedCount === totalImages) {
+            setHeroImages(imageUrls);
             resolve();
           }
         };
@@ -70,89 +88,67 @@ const Home = () => {
   // Update images when switching between mobile and desktop
   useEffect(() => {
     const currentImages = isMobile ? mobileHeroImages : desktopHeroImages;
-    
-    // Start preloading images right away
-    preloadImages(currentImages).then(() => {
-      setHeroImages(currentImages);
-      setImagesLoaded(true);
-      // Reset image index when switching images
-      setCurrentImageIndex(0);
-    });
-  }, [isMobile, preloadImages]); // Runs when isMobile changes
+    preloadImages(currentImages);
+  }, [isMobile, preloadImages]);
   
-  // Set up faster image cycle only after images are loaded
+  // Set up image cycle only after images are loaded
   useEffect(() => {
-    if (!imagesLoaded || heroImages.length === 0) return;
+    if (!imagesLoaded || heroImages.length <= 1) return;
     
     const interval = setInterval(() => {
       setCurrentImageIndex(prev => (prev + 1) % heroImages.length);
-    }, 1500); // Change image every 1.5 seconds for more dynamic effect
+    }, 1800);
     
     return () => clearInterval(interval);
   }, [heroImages, imagesLoaded]);
   
-  // Enhanced text animations
+  // Enhanced text animations with GSAP
   useEffect(() => {
-    if (textRef.current) {
-      // Initial state - all elements hidden
-      gsap.set(textRef.current.children, { 
-        y: 100, 
-        opacity: 0 
-      });
-      
-      // Create more complex animation timeline
+    if (textRef.current && imagesLoaded) {
+      // Create animation timeline
       const tl = gsap.timeline({
         defaults: {
           ease: "power3.out",
-          duration: 1
         }
       });
       
-      tl.to(textRef.current.children, { 
-        y: 0, 
-        opacity: 1, 
-        stagger: 0.2, 
-        duration: 1.2,
-      })
+      // Animate text elements
+      tl.fromTo(textRef.current.children, 
+        { y: 50, opacity: 0 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          stagger: 0.15, 
+          duration: 1.2,
+        }
+      )
       .fromTo(".letter", 
-        { scale: 0.8, opacity: 0.5 },
+        { scale: 0.9, opacity: 0.5 },
         { 
           scale: 1, 
           opacity: 1, 
-          stagger: 0.03, 
-          duration: 0.6,
-          ease: "back.out(1.7)"
+          stagger: 0.02, 
+          duration: 0.5,
+          ease: "back.out(1.5)"
         }, 
-        "-=0.8" // Overlap with previous animation
+        "-=0.8"
       );
+      
+      // Add subtle animation for scroll indicator
+      if (scrollIndicatorRef.current) {
+        gsap.fromTo(scrollIndicatorRef.current,
+          { opacity: 0, y: -20 },
+          { 
+            opacity: 1, 
+            y: 0, 
+            duration: 0.8, 
+            delay: 1.5,
+            ease: "power2.out" 
+          }
+        );
+      }
     }
   }, [imagesLoaded]);
-  
-  // Enhanced hero image parallax effect
-  useEffect(() => {
-    if (heroRef.current) {
-      const handleMouseMove = (e: MouseEvent) => {
-        if (!heroRef.current) return;
-        
-        const { clientX, clientY } = e;
-        const xPos = (clientX / window.innerWidth - 0.5) * 20;
-        const yPos = (clientY / window.innerHeight - 0.5) * 20;
-        
-        const activeImage = heroRef.current.querySelector('.hero-image.active');
-        if (activeImage) {
-          gsap.to(activeImage, {
-            x: xPos,
-            y: yPos,
-            duration: 1,
-            ease: "power2.out"
-          });
-        }
-      };
-      
-      window.addEventListener('mousemove', handleMouseMove);
-      return () => window.removeEventListener('mousemove', handleMouseMove);
-    }
-  }, [currentImageIndex]);
   
   // Scroll to top when component mounts
   useEffect(() => {
@@ -207,7 +203,10 @@ const Home = () => {
           </div>
         </div>
         
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer">
+        <div 
+          ref={scrollIndicatorRef}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer"
+        >
           <ArrowDown 
             className="text-white/70 hover:text-white transition-colors" 
             size={32} 
@@ -221,37 +220,41 @@ const Home = () => {
         </div>
       </section>
 
-      {/* About Me Preview - Now positioned right after Hero */}
+      {/* About Me Preview with Parallax Scroll Effect */}
       <section id="about-section" className="py-20 px-4 md:px-6 bg-dark">
-        <div className=" max-w-[95%]  mx-auto">
+        <div className="max-w-[95%] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <AnimatedSection>
+            <ParallaxScrollSection speed={0.15} direction="down">
               <img 
                 src={meabout} 
                 alt="Ismail Hansal" 
-                className="w-full h-[350px] md:h-[900px] object-cover object-top" 
-                />
-            </AnimatedSection>
+                className="w-full h-[350px] md:h-[900px] object-cover object-top"
+                fetchPriority="low" 
+                loading="lazy"
+              />
+            </ParallaxScrollSection>
             
-            <AnimatedSection delay={200}>
-              <h2 className="text-3xl md:text-4xl uppercase tracking-wider mb-6">About Me</h2>
-              <div className="w-16 h-px bg-white/40 mb-6"></div>
-              <p className="text-gray-300 mb-6 leading-relaxed">
-                As a photographer, I am dedicated to capturing the extraordinary in the ordinary, 
-                finding beauty in unexpected places, and preserving moments that tell compelling stories.
-              </p>
-              <p className="text-gray-300 mb-8 leading-relaxed">
-                My journey in photography began over a decade ago, and since then, I've had the privilege 
-                of working with amazing clients across various industries, from fashion and food to landscapes and architecture.
-              </p>
-              <p className="text-gray-300 mb-8 leading-relaxed">
-                With a keen eye for detail and a passion for storytelling through visuals, I approach each project 
-                with creativity and dedication, ensuring that every image captures not just the subject, but the emotion and atmosphere of the moment.
-              </p>
-              <Link to="/about" className="button-effect inline-block">
-                Learn More
-              </Link>
-            </AnimatedSection>
+            <ParallaxScrollSection speed={0.1} direction="up">
+              <AnimatedSection delay={200}>
+                <h2 className="text-3xl md:text-4xl uppercase tracking-wider mb-6">About Me</h2>
+                <div className="w-16 h-px bg-white/40 mb-6"></div>
+                <p className="text-gray-300 mb-6 leading-relaxed">
+                  As a photographer, I am dedicated to capturing the extraordinary in the ordinary, 
+                  finding beauty in unexpected places, and preserving moments that tell compelling stories.
+                </p>
+                <p className="text-gray-300 mb-8 leading-relaxed">
+                  My journey in photography began over a decade ago, and since then, I've had the privilege 
+                  of working with amazing clients across various industries, from fashion and food to landscapes and architecture.
+                </p>
+                <p className="text-gray-300 mb-8 leading-relaxed">
+                  With a keen eye for detail and a passion for storytelling through visuals, I approach each project 
+                  with creativity and dedication, ensuring that every image captures not just the subject, but the emotion and atmosphere of the moment.
+                </p>
+                <Link to="/about" className="button-effect inline-block">
+                  Learn More
+                </Link>
+              </AnimatedSection>
+            </ParallaxScrollSection>
           </div>
         </div>
       </section>

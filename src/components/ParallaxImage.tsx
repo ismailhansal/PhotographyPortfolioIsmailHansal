@@ -13,95 +13,89 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const frameRef = useRef<number | null>(null);
+  const lastMoveRef = useRef<{x: number, y: number}>({ x: 0, y: 0 });
   
-  // Memoize the observer callback
-  const observerCallback = useCallback((entries: IntersectionObserverEntry[]) => {
-    if (entries[0].isIntersecting) {
-      setIsVisible(true);
-    }
-  }, []);
-
+  // Create intersection observer with optimized options
   useEffect(() => {
     const observer = new IntersectionObserver(
-      observerCallback,
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Disconnect once visible
+        }
+      },
       {
         root: null,
-        rootMargin: '200px', // Larger margin for earlier loading
-        threshold: 0.01, // Lower threshold for quicker detection
+        rootMargin: '30% 0%', // Increased rootMargin for earlier loading
+        threshold: 0.01, // Lower threshold for faster detection
       }
     );
 
-    const currentRef = ref.current;
-    if (currentRef) {
-      observer.observe(currentRef);
+    if (ref.current) {
+      observer.observe(ref.current);
     }
 
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-      
-      // Clean up any pending animation frames
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
-    };
-  }, [observerCallback]);
+    return () => observer.disconnect();
+  }, []);
 
-  // Optimized image preloading
+  // Optimized image loading with priority hints
   useEffect(() => {
     if (!isVisible) return;
     
-    // Use Image constructor for better control
     const img = new Image();
-    // Add image decode for smoother rendering
+    
+    // Set loading priority based on className
+    const isPriority = className.includes('hero');
+    
+    if (isPriority) {
+      img.fetchPriority = 'high';
+    }
+    
+    img.onload = () => setIsLoaded(true);
     img.src = src;
-    img.decode()
-      .then(() => setIsLoaded(true))
-      .catch(() => {
-        // Fallback if decode not supported
-        img.onload = () => setIsLoaded(true);
-      });
-      
+    
     return () => {
       img.onload = null;
     };
-  }, [isVisible, src]);
+  }, [isVisible, src, className]);
 
-  // Optimized, throttled mousemove handler using RAF
+  // Optimized mousemove handler with frame limiting and interpolation
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current || !imgRef.current) return;
     
-    // Cancel any existing animation frame to prevent queueing
-    if (frameRef.current) {
-      cancelAnimationFrame(frameRef.current);
-    }
+    // Get mouse position relative to container
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width - 0.5;
+    const y = (e.clientY - top) / height - 0.5;
     
-    // Schedule the transform on the next animation frame
-    frameRef.current = requestAnimationFrame(() => {
-      if (!ref.current || !imgRef.current) return;
-      
-      const { left, top, width, height } = ref.current.getBoundingClientRect();
-      const x = (e.clientX - left) / width - 0.5;
-      const y = (e.clientY - top) / height - 0.5;
-      
-      imgRef.current.style.transform = `translate3d(${x * 8}px, ${y * 8}px, 0) scale(1.05)`;
-    });
-  }, []);
-
-  // Optimized mouse leave handler
-  const handleMouseLeave = useCallback(() => {
-    if (frameRef.current) {
-      cancelAnimationFrame(frameRef.current);
-    }
+    // Store the target position
+    lastMoveRef.current = { x, y };
     
-    if (imgRef.current) {
-      // Use RAF for smoother reset animation
+    // Use RAF for smoother animation with frame limiting
+    if (!frameRef.current) {
       frameRef.current = requestAnimationFrame(() => {
         if (imgRef.current) {
-          imgRef.current.style.transform = 'translate3d(0, 0, 0) scale(1)';
+          // Apply transform with hardware acceleration
+          imgRef.current.style.transform = 
+            `translate3d(${lastMoveRef.current.x * 10}px, ${lastMoveRef.current.y * 10}px, 0) scale(1.05)`;
         }
+        frameRef.current = null;
       });
+    }
+  }, []);
+
+  // Reset transform smoothly on mouse leave
+  const handleMouseLeave = useCallback(() => {
+    if (imgRef.current) {
+      imgRef.current.style.transition = 'transform 0.3s ease-out';
+      imgRef.current.style.transform = 'translate3d(0, 0, 0) scale(1)';
+      
+      // Reset transition after animation completes
+      setTimeout(() => {
+        if (imgRef.current) {
+          imgRef.current.style.transition = 'transform 0.05s linear';
+        }
+      }, 300);
     }
   }, []);
 
@@ -118,15 +112,15 @@ const ParallaxImage = ({ src, alt, className = "" }: ParallaxImageProps) => {
           src={src}
           alt={alt}
           fetchPriority={className.includes('hero') ? 'high' : 'auto'}
-          className={`w-full h-full object-cover transition-all duration-300 ease-out ${
-            isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           style={{ 
-            willChange: 'transform, opacity',
-            transform: 'translate3d(0, 0, 0)', // Default transform with hardware acceleration
+            willChange: 'transform',
+            transform: 'translate3d(0, 0, 0)',
+            transition: 'transform 0.05s linear',
           }}
-          onLoad={() => setIsLoaded(true)}
-          loading="lazy" // Change to lazy loading for all images
+          loading="lazy"
         />
       )}
     </div>

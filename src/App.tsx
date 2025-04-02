@@ -11,14 +11,36 @@ import PopupButton from '@/components/PopupButton';
 import Preloader from '@/components/Preloader';
 import gsap from "gsap";
 
-// More efficient lazy loading with appropriate chunks
-const Home = lazy(() => import(/* webpackChunkName: "home" */ "./pages/Home"));
-const Portfolio = lazy(() => import(/* webpackChunkName: "portfolio" */ "./pages/Portfolio"));
+// More efficient lazy loading with appropriate chunks and prefetching
+const Home = lazy(() => {
+  // Start preloading Home component assets
+  const prefetch = import(/* webpackChunkName: "home" */ "./pages/Home");
+  document.onreadystatechange = () => {
+    if (document.readyState === "complete") {
+      // Prefetch images used on the Home page
+      [
+        '/assets/cabestan.webp',
+        '/assets/ciel.webp', 
+        '/assets/ducasse.webp'
+      ].forEach(url => {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'image';
+        link.href = url;
+        document.head.appendChild(link);
+      });
+    }
+  };
+  return prefetch;
+});
+
+// Optimize other page loads with hints
+const Portfolio = lazy(() => import(/* webpackChunkName: "portfolio", webpackPrefetch: true */ "./pages/Portfolio"));
 const About = lazy(() => import(/* webpackChunkName: "about" */ "./pages/About"));
 const Contact = lazy(() => import(/* webpackChunkName: "contact" */ "./pages/Contact"));
 const NotFound = lazy(() => import(/* webpackChunkName: "not-found" */ "./pages/NotFound"));
 
-// Create loading fallback with reduced motion
+// Create a minimal loading fallback
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen bg-dark">
     <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -30,46 +52,49 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: 10 * 60 * 1000, // 10 minutes to reduce refetches
-      gcTime: 15 * 60 * 1000, // 15 minutes garbage collection time
-      retry: 1, // Limit retries to improve perceived performance
+      staleTime: 5 * 60 * 1000, // 5 minutes to reduce refetches
+      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection time
+      retry: 1, // Limit retries
     },
   },
 });
 
-// Route-based code splitting component
+// Optimized route-based code splitting component
 const LazyRouteLoader = () => {
   const location = useLocation();
   
   useEffect(() => {
-    // Prioritize loading the current route's chunk first
+    // Intelligently preload routes based on current location
     const currentPath = location.pathname;
     
-    // Preload current route immediately
-    if (currentPath === '/' || currentPath === '') {
-      import("./pages/Home");
-    } else if (currentPath.includes('/portfolio')) {
-      import("./pages/Portfolio");
-    } else if (currentPath.includes('/about')) {
-      import("./pages/About");
-    } else if (currentPath.includes('/contact')) {
-      import("./pages/Contact");
-    }
-    
-    // Then lazily preload other routes when idle
+    // Use requestIdleCallback for preloading to avoid blocking main thread
     if ('requestIdleCallback' in window) {
-      const idleCallback = window.requestIdleCallback(() => {
-        if (currentPath !== '/' && currentPath !== '') import("./pages/Home");
-        if (!currentPath.includes('/portfolio')) import("./pages/Portfolio");
-        if (!currentPath.includes('/about')) import("./pages/About");
-        if (!currentPath.includes('/contact')) import("./pages/Contact");
-      }, { timeout: 2000 });
+      // Immediately preload current route
+      if (currentPath === '/' || currentPath === '') {
+        import("./pages/Home");
+      } else if (currentPath.includes('/portfolio')) {
+        import("./pages/Portfolio");
+      } else if (currentPath.includes('/about')) {
+        import("./pages/About");
+      } else if (currentPath.includes('/contact')) {
+        import("./pages/Contact");
+      }
       
-      return () => {
-        if ('cancelIdleCallback' in window) {
-          window.cancelIdleCallback(idleCallback);
+      // Preload likely next routes during idle time
+      window.requestIdleCallback(() => {
+        // If on home, preload portfolio
+        if (currentPath === '/' || currentPath === '') {
+          import("./pages/Portfolio");
         }
-      };
+        // If on portfolio, preload about
+        else if (currentPath.includes('/portfolio')) {
+          import("./pages/About");
+        }
+        // If on about, preload contact
+        else if (currentPath.includes('/about')) {
+          import("./pages/Contact");
+        }
+      }, { timeout: 2000 });
     }
   }, [location]);
   
@@ -80,19 +105,20 @@ const App = () => {
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-    // Optimize GSAP config for better performance
+    // Optimize GSAP config
     gsap.config({
       nullTargetWarn: false,
       autoSleep: 60,
       force3D: true
     });
     
-    // Use setTimeout with a shorter delay for faster app initialization
+    // Use shorter delay for faster app initialization
     setTimeout(() => {
       setAppReady(true);
-    }, 1000);
+    }, 800);
     
     return () => {
+      // Clean up any GSAP animations
       gsap.killTweensOf(window);
     };
   }, []);
@@ -103,7 +129,6 @@ const App = () => {
         <Toaster />
         <Sonner />
         
-        {/* Show preloader until app is ready */}
         <Preloader />
         
         <BrowserRouter>

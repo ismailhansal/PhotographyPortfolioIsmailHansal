@@ -3,46 +3,47 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Performance metrics logging
-if (process.env.NODE_ENV === 'development') {
-  const reportWebVitals = (metric: any) => {
-    console.log(metric);
-  };
-  
-  // @ts-ignore - Import web vitals only in development
-  import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-    getCLS(reportWebVitals);
-    getFID(reportWebVitals);
-    getFCP(reportWebVitals);
-    getLCP(reportWebVitals);
-    getTTFB(reportWebVitals);
-  });
-}
-
-// Optimize initial render
+// Performance-optimized loading sequence
 const container = document.getElementById("root");
 if (!container) throw new Error('Root element not found');
 
-// Use createRoot instead of ReactDOM.render
+// Create root once
 const root = createRoot(container);
 
-// Render function that can be deferred
-const renderApp = () => {
+// Define a function to start hydration when ready
+const startHydration = () => {
   root.render(<App />);
+  
+  // Log core web vitals only in development
+  if (process.env.NODE_ENV === 'development') {
+    // Dynamically import web-vitals only when needed
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      const reportWebVitals = (metric: any) => {
+        console.log(metric);
+      };
+      
+      getCLS(reportWebVitals);
+      getFID(reportWebVitals);
+      getFCP(reportWebVitals);
+      getLCP(reportWebVitals);
+      getTTFB(reportWebVitals);
+    });
+  }
 };
 
-// If the browser is not busy, render immediately
-if (
-  // @ts-ignore - Check for requestIdleCallback compatibility
-  'requestIdleCallback' in window && 
-  document.readyState !== 'complete'
-) {
-  // Prioritize rendering after the page has loaded
-  window.addEventListener('load', () => {
-    // @ts-ignore - TypeScript doesn't recognize requestIdleCallback
-    window.requestIdleCallback(renderApp, { timeout: 2000 });
+// Optimize initial render timing
+if (document.readyState === 'loading') {
+  // Wait for the document to be ready
+  document.addEventListener('DOMContentLoaded', () => {
+    // If requestIdleCallback is available, use it for non-critical rendering
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(startHydration, { timeout: 1000 });
+    } else {
+      // Fallback for browsers without requestIdleCallback
+      setTimeout(startHydration, 0);
+    }
   });
 } else {
-  // Render directly for browsers without idle callback
-  renderApp();
+  // Document already loaded, render immediately
+  startHydration();
 }
