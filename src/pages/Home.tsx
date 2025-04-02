@@ -47,11 +47,17 @@ const Home = () => {
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
-  // Get the appropriate images based on device
-  const [heroImages, setHeroImages] = useState<string[]>([]);
+  // Initialize with the appropriate images immediately based on viewport width
+  // This avoids the need to wait for the isMobile hook to update
+  const initialIsMobile = window.innerWidth < 768;
+  const [heroImages, setHeroImages] = useState<string[]>(
+    initialIsMobile ? mobileHeroImages : desktopHeroImages
+  );
   
   // Preload images function with optimized loading
   const preloadImages = useCallback((imageUrls: string[]) => {
+    if (imageUrls.length === 0) return Promise.resolve();
+    
     let loadedCount = 0;
     const totalImages = imageUrls.length;
     
@@ -87,8 +93,11 @@ const Home = () => {
   
   // Update images when switching between mobile and desktop
   useEffect(() => {
-    const currentImages = isMobile ? mobileHeroImages : desktopHeroImages;
-    preloadImages(currentImages);
+    // Only update if isMobile has been determined (not undefined)
+    if (isMobile !== undefined) {
+      const currentImages = isMobile ? mobileHeroImages : desktopHeroImages;
+      preloadImages(currentImages);
+    }
   }, [isMobile, preloadImages]);
   
   // Set up image cycle only after images are loaded

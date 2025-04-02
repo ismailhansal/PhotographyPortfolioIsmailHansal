@@ -17,16 +17,17 @@ const startHydration = () => {
   // Log core web vitals only in development
   if (process.env.NODE_ENV === 'development') {
     // Dynamically import web-vitals only when needed
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+    import('web-vitals').then((webVitals) => {
       const reportWebVitals = (metric: any) => {
         console.log(metric);
       };
       
-      getCLS(reportWebVitals);
-      getFID(reportWebVitals);
-      getFCP(reportWebVitals);
-      getLCP(reportWebVitals);
-      getTTFB(reportWebVitals);
+      // Use proper method calls based on the actual exports
+      webVitals.onCLS(reportWebVitals);
+      webVitals.onFID(reportWebVitals);
+      webVitals.onFCP(reportWebVitals);
+      webVitals.onLCP(reportWebVitals);
+      webVitals.onTTFB(reportWebVitals);
     });
   }
 };
