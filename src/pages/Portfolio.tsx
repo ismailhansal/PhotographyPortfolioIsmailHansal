@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import gsap from 'gsap';
@@ -18,7 +17,6 @@ import immomobile from '@/assets/mobile/immo-mobile.webp';
 import packomobile from '@/assets/mobile/packo-mobile.webp';
 import pizzamobile from '@/assets/mobile/pizza-mobile.webp';
 
-
 import image05 from '@/assets/tout/culinaire/Image05.webp'
 import image06 from '@/assets/tout/culinaire/Image06.webp'
 import image07 from '@/assets/tout/culinaire/Image07.webp'
@@ -32,15 +30,10 @@ import image28 from '@/assets/tout/culinaire/Image28.webp'
 import image29 from '@/assets/tout/culinaire/Image29.webp'
 import image30 from '@/assets/tout/culinaire/Image30.webp'
 
-
-//Restaurant
 import image03 from '@/assets/tout/restaurant/Image03.webp'
 import image04 from '@/assets/tout/restaurant/Image04.webp'
 import image24 from '@/assets/tout/restaurant/Image24.webp'
 import image25 from '@/assets/tout/restaurant/Image25.webp'
-
-
-//Portrait
 
 import image01 from '@/assets/tout/portrait/Image01.webp'
 import image02 from '@/assets/tout/portrait/Image02.webp'
@@ -54,8 +47,6 @@ import image37 from '@/assets/tout/portrait/Image37.webp'
 import image38 from '@/assets/tout/portrait/Image38.webp'
 import image39 from '@/assets/tout/portrait/Image39.webp'
 
-//Real-estate
-
 import image12 from '@/assets/tout/real-estate/Image12.webp'
 import image13 from '@/assets/tout/real-estate/Image13.webp'
 import image14 from '@/assets/tout/real-estate/Image14.webp'
@@ -68,20 +59,6 @@ import image20 from '@/assets/tout/real-estate/Image21.webp'
 import image21 from '@/assets/tout/real-estate/Image22.webp'
 import image22 from '@/assets/tout/real-estate/Image23.webp'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
 interface PortfolioItem {
@@ -93,11 +70,6 @@ interface PortfolioItem {
 }
 
 const portfolioData: PortfolioItem[] = [
-  
-  
-  // Restaurant
-
-
   {
     id: 42,
     title: "Culinary Art",
@@ -105,9 +77,6 @@ const portfolioData: PortfolioItem[] = [
     image: ducasse,
     aspectRatio: "landscape"
   },
-
-
-
 
   {
     id: 45,
@@ -125,9 +94,6 @@ const portfolioData: PortfolioItem[] = [
     aspectRatio: "landscape"
   },
 
-
-
-
   {
     id: 3,
     title: "Fine Dining",
@@ -136,13 +102,11 @@ const portfolioData: PortfolioItem[] = [
     aspectRatio: "portrait"
   },
 
-
   {
     id: 51,
     title: "Culinary Art",
     category: "Restaurant",
-    image: image24
-    ,
+    image: image24,
     aspectRatio: "portrait"
   },
   
@@ -154,12 +118,6 @@ const portfolioData: PortfolioItem[] = [
     aspectRatio: "portrait"
   },
 
-
-
-  
- 
-  
-  // Culinaire
   {
     id: 5,
     title: "Morning Coffee",
@@ -174,7 +132,6 @@ const portfolioData: PortfolioItem[] = [
     image: pizzamobile,
     aspectRatio: "portrait"
   },
-
 
   {
     id: 7,
@@ -261,111 +218,92 @@ const portfolioData: PortfolioItem[] = [
     aspectRatio: "portrait"
   },
 
+  {
+    id: 80,
+    title: "Mountain Portrait",
+    category: "Portrait",
+    image: packomobile,
+    aspectRatio: "portrait"
+  },
 
+  {
+    id: 19,
+    title: "Portrait Image 01",
+    category: "Portrait",
+    image: image01,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 20,
+    title: "Portrait Image 02",
+    category: "Portrait",
+    image: image02,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 21,
+    title: "Portrait Image 31",
+    category: "Portrait",
+    image: image31,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 22,
+    title: "Portrait Image 32",
+    category: "Portrait",
+    image: image32,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 23,
+    title: "Portrait Image 33",
+    category: "Portrait",
+    image: image33,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 24,
+    title: "Portrait Image 34",
+    category: "Portrait",
+    image: image34,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 25,
+    title: "Portrait Image 35",
+    category: "Portrait",
+    image: image35,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 26,
+    title: "Portrait Image 36",
+    category: "Portrait",
+    image: image36,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 27,
+    title: "Portrait Image 37",
+    category: "Portrait",
+    image: image37,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 28,
+    title: "Portrait Image 38",
+    category: "Portrait",
+    image: image38,
+    aspectRatio: "portrait"
+  },
+  {
+    id: 29,
+    title: "Portrait Image 39",
+    category: "Portrait",
+    image: image39,
+    aspectRatio: "portrait"
+  },
 
-
-
-// Portrait
-  
-  
-{
-  id: 80,
-  title: "Mountain Portrait",
-  category: "Portrait",
-  image: packomobile,
-  aspectRatio: "portrait"
-},
-
-
- {
-  id: 19,
-  title: "Portrait Image 01",
-  category: "Portrait",
-  image: image01,
-  aspectRatio: "portrait"
-},
-{
-  id: 20,
-  title: "Portrait Image 02",
-  category: "Portrait",
-  image: image02,
-  aspectRatio: "portrait"
-},
-{
-  id: 21,
-  title: "Portrait Image 31",
-  category: "Portrait",
-  image: image31,
-  aspectRatio: "portrait"
-},
-{
-  id: 22,
-  title: "Portrait Image 32",
-  category: "Portrait",
-  image: image32,
-  aspectRatio: "portrait"
-},
-{
-  id: 23,
-  title: "Portrait Image 33",
-  category: "Portrait",
-  image: image33,
-  aspectRatio: "portrait"
-},
-{
-  id: 24,
-  title: "Portrait Image 34",
-  category: "Portrait",
-  image: image34,
-  aspectRatio: "portrait"
-},
-{
-  id: 25,
-  title: "Portrait Image 35",
-  category: "Portrait",
-  image: image35,
-  aspectRatio: "portrait"
-},
-{
-  id: 26,
-  title: "Portrait Image 36",
-  category: "Portrait",
-  image: image36,
-  aspectRatio: "portrait"
-},
-{
-  id: 27,
-  title: "Portrait Image 37",
-  category: "Portrait",
-  image: image37,
-  aspectRatio: "portrait"
-},
-{
-  id: 28,
-  title: "Portrait Image 38",
-  category: "Portrait",
-  image: image38,
-  aspectRatio: "portrait"
-},
-{
-  id: 29,
-  title: "Portrait Image 39",
-  category: "Portrait",
-  image: image39,
-  aspectRatio: "portrait"
-},
-
-
-
-
-
-
-
-
-
-
-  
-  // Real-Estate
   {
     id: 81,
     title: "Mountain Range",
@@ -373,8 +311,6 @@ const portfolioData: PortfolioItem[] = [
     image: immomobile,
     aspectRatio: "portrait"
   },
-  
-
 
   {
     id: 30,
@@ -452,17 +388,8 @@ const portfolioData: PortfolioItem[] = [
     category: "Real-Estate",
     image: image22,
     aspectRatio: "portrait"
-  },
-
-
-
+  }
 ];
-
-
-
-
-
-
 
 const Portfolio = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -472,17 +399,13 @@ const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>(portfolioData);
   
-  // Enhanced image viewer state
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   
-  // Loading state for skeleton
   const [loading, setLoading] = useState(true);
 
-  // Memoize category selection handler to prevent recreating on each render
   const handleCategorySelect = useCallback((category: string) => {
     setActiveCategory(category);
-    // Show skeleton when changing categories
     setLoading(true);
   }, []);
 
@@ -499,17 +422,14 @@ const Portfolio = () => {
       }
     }
     
-    // Simulate loading time for images
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1200); // Long enough to be noticeable but not annoying
+    }, 1200);
     
     return () => clearTimeout(timer);
   }, [categoryParam, categories]);
 
-  // Memoize filtered items calculation to avoid recalculation on every render
   useEffect(() => {
-    // Only update filtered items when category changes
     if (activeCategory === "All") {
       setFilteredItems(portfolioData);
     } else {
@@ -518,17 +438,14 @@ const Portfolio = () => {
       );
     }
     
-    // Update URL with category
     if (activeCategory !== "All") {
       setSearchParams({ category: activeCategory.toLowerCase() });
     } else {
       setSearchParams({});
     }
     
-    // Show skeleton when changing categories
     setLoading(true);
     
-    // Hide skeleton after delay
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1200);
@@ -536,20 +453,17 @@ const Portfolio = () => {
     return () => clearTimeout(timer);
   }, [activeCategory, setSearchParams]);
 
-  // Open the enhanced image carousel viewer
   const openImageViewer = useCallback((index: number) => {
     setSelectedImageIndex(index);
     setViewerOpen(true);
-    document.body.style.overflow = 'hidden'; // Prevent scrolling when viewer is open
-  }, []);
-  
-  // Close the enhanced image carousel viewer
-  const closeImageViewer = useCallback(() => {
-    setViewerOpen(false);
-    document.body.style.overflow = 'auto'; // Restore scrolling
+    document.body.style.overflow = 'hidden';
   }, []);
 
-  // Animation variants for the grid
+  const closeImageViewer = useCallback(() => {
+    setViewerOpen(false);
+    document.body.style.overflow = 'auto';
+  }, []);
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -582,7 +496,6 @@ const Portfolio = () => {
           onSelectCategory={handleCategorySelect} 
         />
         
-        {/* Conditional rendering of skeleton or actual content */}
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div
@@ -623,7 +536,6 @@ const Portfolio = () => {
         </AnimatePresence>
       </div>
       
-      {/* Full-screen Carousel Viewer with Better Visibility */}
       {viewerOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
           <button 
